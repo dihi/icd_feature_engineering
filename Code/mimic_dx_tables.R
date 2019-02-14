@@ -71,3 +71,5 @@ trunc_binary_matrix <- data.frame(apply(trunc_total_matrix[, -c(1)], 2, function
 trunc_binary_matrix <- cbind(trunc_total_matrix[, 1], trunc_binary_matrix)
 saveRDS(trunc_total_matrix, "trunc_total_matrix.rds")
 saveRDS(trunc_binary_matrix, "trunc_binary_matrix.rds")
+
+# Add end comment
