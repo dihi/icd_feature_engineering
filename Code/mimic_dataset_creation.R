@@ -12,16 +12,16 @@ library(stringr)
 
 # READ IN DATA
 
-admissions <- fread("Data/Raw/ADMISSIONS.csv")
-patients <- fread("Data/Raw/PATIENTS.csv")
-codes <- fread("Data/Raw/DIAGNOSES_ICD.csv")
+admissions <- fread("../Data/Raw/ADMISSIONS.csv")
+patients <- fread("../Data/Raw/PATIENTS.csv")
+codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
 
 admissions <- admissions[, c(2:4)]
 patients <- patients[, c(2:5)]
 codes <- codes[, c(3, 5)]
 
-icd9_ahrq_cw <- fread("Data/Crosswalk/icd9_ahrq.csv")
-icd9_ccs_cw <- fread("Data/Crosswalk/icd9_to_singleCCScategory.csv")
+icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
+icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
 
 # CREATE MAP TO AHRQ, CCS, truncated
 

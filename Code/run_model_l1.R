@@ -15,7 +15,7 @@ library(ROCR)
 library(MLmetrics)
 
 # read in data
-ahrq_total_with_death <- readRDS("Desktop/DIHI/Diagnosis Code/MIMIC-III/Data/Final/ahrq_total_with_death.rds")
+ahrq_total_with_death <- readRDS("../Data/Final/ahrq_total_with_death.rds")
 ahrq_total_with_death <- ahrq_total_with_death[, -c(1)]
 
 ## RUN LOG REG MODEL

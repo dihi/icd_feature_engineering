@@ -11,13 +11,13 @@ library(stringr)
 
 # READ IN DATA
 
-admissions <- fread("Data/Raw/ADMISSIONS.csv")
-patients <- fread("Data/Raw/PATIENTS.csv")
-codes <- fread("Data/Raw/DIAGNOSES_ICD.csv")
-ahrq_total_matrix <- readRDS("Data/Processed/ahrq_total_matrix.rds")
-ahrq_binary_matrix <- readRDS("Data/Processed/ahrq_binary_matrix.rds")
-ccs_total_matrix <- readRDS("Data/Processed/ccs_total_matrix.rds")
-trunc_total_matrix <- readRDS("Data/Processed/trunc_total_matrix.rds")
+admissions <- fread("../Data/Raw/ADMISSIONS.csv")
+patients <- fread("../Data/Raw/PATIENTS.csv")
+codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
+ahrq_total_matrix <- readRDS("../Data/Processed/ahrq_total_matrix.rds")
+ahrq_binary_matrix <- readRDS("../Data/Processed/ahrq_binary_matrix.rds")
+ccs_total_matrix <- readRDS("../Data/Processed/ccs_total_matrix.rds")
+trunc_total_matrix <- readRDS("../Data/Processed/trunc_total_matrix.rds")
 
 admissions <- admissions[, c(2:4)]
 patients <- patients[, c(2:5)]
