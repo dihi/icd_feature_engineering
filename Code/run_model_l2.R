@@ -1,5 +1,5 @@
-## ICD MIMIC - l1 model
-## Date Created: 1/4/2019
+## ICD MIMIC - l2 model
+## Date Created: 3/8/2019
 ## Author: Aman Kansal
 
 library(dplyr)
@@ -29,7 +29,7 @@ test_indices <- random_indices[(round(0.8*length(random_indices)+1):length(rando
 split <- c(5000, 10000, 20000, 40000)
 # empty vector to store auc for 4 subset levels, both for complication and death
 
-l1_calc <- function(death_matrix){
+l2_calc <- function(death_matrix){
   auc <- data.frame(auc_death = numeric())
   f1 <- data.frame(f1_death = numeric())
   # cannot create empty data frame for time_elapsed in the same way because we are trying to rbind proc_time objects
@@ -42,10 +42,10 @@ l1_calc <- function(death_matrix){
     # build model
     subset <- train_indices[1:i]
     set.seed(1)
-    time_elapsed_death <- rbind(time_elapsed_death, system.time(model_death <- cv.glmnet(y = death_matrix$death_in_year[subset], x = x_matrix_death[subset, ], family = "binomial", maxit = 10000)))
+    time_elapsed_death <- rbind(time_elapsed_death, system.time(model_death <- cv.glmnet(y = death_matrix$death_in_year[subset], x = x_matrix_death[subset, ], alpha = 0, family = "binomial", maxit = 10000)))
     # prediction on the holdout
     pred_death <- predict(model_death, x_matrix_death[test_indices,], type = "response")
-    predictions <- cbind(pred_death = pred_death[,1], death_matrix[test_indices, "death_in_year"])
+    predictions <- cbind(pred_death = pred_death, death_matrix[test_indices, "death_in_year"])
     # calculate auc
     auc_death <- auc(death_matrix$death_in_year[test_indices], pred_death)
     # add to auc dataframe
@@ -61,5 +61,5 @@ l1_calc <- function(death_matrix){
 }
 
 # apply function to final datasets
-l1_ahrq_total_results <- l1_calc(ahrq_total_with_death)
-saveRDS(l1_ahrq_total_results, "../Output/l1_ahrq_total_results.rds")
+l2_ahrq_total_results <- l2_calc(ahrq_total_with_death)
+saveRDS(l2_ahrq_total_results, "../Output/l2_ahrq_total_results.rds")
