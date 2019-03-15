@@ -1,4 +1,5 @@
 Data/*
+*.Rproj
 !Data/Crosswalk
 Code/.Rhistory*
 *.model
@@ -13,3 +14,4 @@ Output/*Data/*
 Output/*Data/*
 Output/*
 Code/raw*
+.Rproj.user
