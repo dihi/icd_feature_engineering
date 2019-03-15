@@ -93,6 +93,8 @@ if(args[1] == "ahrq"){
   saveRDS(trunc_binary_matrix, paste0(args[2], "/trunc_binary_matrix.rds"))
   
 } else if(args[1] == "raw"){
+  codes <- codes[, c("HADM_ID", "ICD9_CODE")]
+  codes <- codes[ICD9_CODE != "",]
   raw_total_matrix <- create_matrix(codes, levels(as.factor(codes$ICD9_CODE)))
   raw_binary_matrix <- data.frame(apply(raw_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
   raw_binary_matrix <- cbind(raw_total_matrix[, 1], raw_binary_matrix)
