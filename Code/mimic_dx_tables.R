@@ -6,6 +6,7 @@
 
 ## Usage:
 ## Rscript mimic_dx_tables.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
+library(data.table)
 
 
 args = commandArgs(trailingOnly=TRUE)
@@ -19,11 +20,6 @@ if (length(args)==0) {
 }
 
 dir.create(args[2])
-
-
-
-library(dplyr)
-library(data.table)
 
 # READ IN DATA
 
@@ -61,7 +57,7 @@ create_matrix <- function(map, groups){
 if(args[1] == "ahrq"){
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
-  ahrq_map <- left_join(codes, icd9_ahrq_cw, by = c("ICD9_CODE" = "V1"))
+  ahrq_map <- merge(codes, icd9_ahrq_cw, by.x = "ICD9_CODE", by.y = "V1", all.x = TRUE, allow.cartesian = TRUE)
   ahrq_map <- as.data.table(ahrq_map[, c("HADM_ID", "i")]) # i corresponds to ahrq groups
   
   ahrq_total_matrix <- create_matrix(ahrq_map, levels(as.factor(ahrq_map$i)))
@@ -71,7 +67,7 @@ if(args[1] == "ahrq"){
   saveRDS(ahrq_binary_matrix, paste0(args[2], "/ahrq_binary_matrix.rds"))
   
 } else if(args[1] == "ccs"){
-  ccs_map <- left_join(codes, icd9_ccs_cw, by = c("ICD9_CODE" = "ICD-9-CM CODE"))
+  ccs_map <- merge(codes, icd9_ccs_cw, by.x = "ICD9_CODE", by.y ="ICD-9-CM CODE", all.x = TRUE, allow.cartesian = TRUE)
   ccs_map <- as.data.table(ccs_map[, c("HADM_ID", "CCS DIAGNOSIS CATEGORIES")])
   
   ccs_total_matrix <- create_matrix(ccs_map, levels(as.factor(ccs_map$`CCS DIAGNOSIS CATEGORIES`)))
