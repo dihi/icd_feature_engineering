@@ -2,32 +2,36 @@
 ## Final Dataset: Admissions + codes
 ## Date Created: 1/4/2019
 ## Author: Aman Kansal
+## Modified: 03/17/2019 - Michael Gao
 
+## Rscript mimic_final_dataset.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
+
+# READ IN DATA
 library(dplyr)
-library(ggplot2)
 library(data.table)
 library(lubridate)
 library(stringr)
 
-# READ IN DATA
 
 admissions <- fread("../Data/Raw/ADMISSIONS.csv")
 patients <- fread("../Data/Raw/PATIENTS.csv")
 codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
-ahrq_total_matrix <- readRDS("../Data/Processed/ahrq_total_matrix.rds")
-ahrq_binary_matrix <- readRDS("../Data/Processed/ahrq_binary_matrix.rds")
-ccs_total_matrix <- readRDS("../Data/Processed/ccs_total_matrix.rds")
-ccs_binary_matrix <- readRDS("../Data/Processed/ccs_binary_matrix.rds")
-trunc_total_matrix <- readRDS("../Data/Processed/trunc_total_matrix.rds")
-trunc_binary_matrix <- readRDS("../Data/Processed/trunc_binary_matrix.rds")
-raw_total_matrix <- readRDS("../Data/Processed/raw_total_matrix.rds")
-raw_binary_matrix <- readRDS("../Data/Processed/raw_binary_matrix.rds")
+
+args = commandArgs(trailingOnly=TRUE)
+
+if (length(args)==0) {
+  stop("At least one argument must be supplied", call.=FALSE)
+} else if(length(args)==1) {
+  args[2] <- "../Data/Final/"
+}
+
+dir.create(args[2])
 
 admissions <- admissions[, c("SUBJECT_ID", "HADM_ID", "ADMITTIME")]
 patients <- patients[, c("SUBJECT_ID", "GENDER", "DOB", "DOD")]
 
 # create data.table of IDs with demographic features
-all_encounters <- as.data.table(left_join(admissions, patients, by = "SUBJECT_ID"))
+all_encounters <- merge(admissions, patients, by = "SUBJECT_ID", all.x = TRUE)
 all_encounters[, `:=`(ADMITTIME = gsub(" .*$", "", ADMITTIME), 
                       DOB = gsub(" .*$", "", DOB),
                       DOD = gsub(" .*$", "", DOD))]
@@ -36,6 +40,19 @@ all_encounters[, AGE := year(ADMITTIME) - year(DOB)]
 all_encounters[, death_in_year := ifelse((DOD - ADMITTIME) > 365, 0, 1)]
 all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
 
+if(args[1] == "ahrq"){
+    ahrq_total_matrix <- readRDS("../Data/Processed/ahrq_total_matrix.rds")
+    ahrq_binary_matrix <- readRDS("../Data/Processed/ahrq_binary_matrix.rds")
+} else if(args[1] == "ccs"){
+    ccs_total_matrix <- readRDS("../Data/Processed/ccs_total_matrix.rds")
+    ccs_binary_matrix <- readRDS("../Data/Processed/ccs_binary_matrix.rds")
+} else if(args[1] == "truncated"){
+    trunc_total_matrix <- readRDS("../Data/Processed/trunc_total_matrix.rds")
+    trunc_binary_matrix <- readRDS("../Data/Processed/trunc_binary_matrix.rds")
+} else if(args[1] == "raw"){
+    raw_total_matrix <- readRDS("../Data/Processed/raw_total_matrix.rds")
+    raw_binary_matrix <- readRDS("../Data/Processed/raw_binary_matrix.rds") 
+}
 # merge demographics with code count features
 ahrq_total_with_death <- merge(all_encounters, ahrq_total_matrix, by = "HADM_ID")
 ahrq_total_with_death[is.na(ahrq_total_with_death)] <- 0
