@@ -7,11 +7,8 @@
 ## Rscript mimic_final_dataset.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
 
 # READ IN DATA
-library(dplyr)
 library(data.table)
 library(lubridate)
-library(stringr)
-
 
 admissions <- fread("../Data/Raw/ADMISSIONS.csv")
 patients <- fread("../Data/Raw/PATIENTS.csv")
@@ -43,29 +40,37 @@ all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year"
 if(args[1] == "ahrq"){
     ahrq_total_matrix <- readRDS("../Data/Processed/ahrq_total_matrix.rds")
     ahrq_binary_matrix <- readRDS("../Data/Processed/ahrq_binary_matrix.rds")
+
+    ahrq_total_with_death <- merge(all_encounters, ahrq_total_matrix, by = "HADM_ID")
+    ahrq_total_with_death[is.na(ahrq_total_with_death)] <- 0
+    saveRDS(ahrq_total_with_death, paste0(args[2], "ahrq_total_with_death.rds")
+
 } else if(args[1] == "ccs"){
     ccs_total_matrix <- readRDS("../Data/Processed/ccs_total_matrix.rds")
     ccs_binary_matrix <- readRDS("../Data/Processed/ccs_binary_matrix.rds")
+
+
+    ccs_total_with_death <- merge(all_encounters, ccs_total_matrix, by = "HADM_ID")
+    ccs_total_with_death[is.na(ccs_total_with_death)] <- 0
+    saveRDS(ccs_total_with_death, paste0(args[2], "ccs_total_with_death.rds")
+
 } else if(args[1] == "truncated"){
     trunc_total_matrix <- readRDS("../Data/Processed/trunc_total_matrix.rds")
     trunc_binary_matrix <- readRDS("../Data/Processed/trunc_binary_matrix.rds")
+
+
+    trunc_total_with_death <- merge(all_encounters, trunc_total_matrix, by = "HADM_ID")
+    trunc_total_with_death[is.na(trunc_total_with_death)] <- 0
+    saveRDS(trunc_total_with_death, paste0(args[2], "trunc_total_with_death.rds")
+
 } else if(args[1] == "raw"){
     raw_total_matrix <- readRDS("../Data/Processed/raw_total_matrix.rds")
-    raw_binary_matrix <- readRDS("../Data/Processed/raw_binary_matrix.rds") 
+    raw_binary_matrix <- readRDS("../Data/Processed/raw_binary_matrix.rds")
+
+    raw_total_with_death <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
+    raw_total_with_death[is.na(raw_total_with_death)] <- 0
+    saveRDS(raw_total_with_death, paste0(args[2], "raw_total_with_death.rds")
+ 
 }
-# merge demographics with code count features
-ahrq_total_with_death <- merge(all_encounters, ahrq_total_matrix, by = "HADM_ID")
-ahrq_total_with_death[is.na(ahrq_total_with_death)] <- 0
-saveRDS(ahrq_total_with_death, "../Data/Final/ahrq_total_with_death.rds")
 
-ccs_total_with_death <- merge(all_encounters, ccs_total_matrix, by = "HADM_ID")
-ccs_total_with_death[is.na(ccs_total_with_death)] <- 0
-saveRDS(ccs_total_with_death, "../Data/Final/ccs_total_with_death.rds")
 
-trunc_total_with_death <- merge(all_encounters, trunc_total_matrix, by = "HADM_ID")
-trunc_total_with_death[is.na(trunc_total_with_death)] <- 0
-saveRDS(trunc_total_with_death, "../Data/Final/trunc_total_with_death.rds")
-
-raw_total_with_death <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
-raw_total_with_death[is.na(raw_total_with_death)] <- 0
-saveRDS(raw_total_with_death, "../Data/Final/raw_total_with_death.rds")
