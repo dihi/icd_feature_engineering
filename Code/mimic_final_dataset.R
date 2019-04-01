@@ -4,7 +4,8 @@
 ## Author: Aman Kansal
 ## Modified: 03/17/2019 - Michael Gao
 
-## Rscript mimic_final_dataset.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
+## Rscript mimic_final_dataset.R {"ccs", "truncated", "ahrq", "raw"} {input_directory} {output_directory} 
+## input_directory here refers to where the output of mimic_dx_tables.R has run
 
 # READ IN DATA
 library(data.table)
@@ -19,10 +20,14 @@ args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
   stop("At least one argument must be supplied", call.=FALSE)
 } else if(length(args)==1) {
-  args[2] <- "../Data/Final/"
+  args[2] <- "../Data/Processed/"
+  args[3] <- "../Data/Final/"
+} else if(length(args)==2) {
+  args[3] <- "../Data/Final/"
 }
 
 dir.create(args[2])
+dir.create(args[3])
 
 admissions <- admissions[, c("SUBJECT_ID", "HADM_ID", "ADMITTIME")]
 patients <- patients[, c("SUBJECT_ID", "GENDER", "DOB", "DOD")]
@@ -38,38 +43,38 @@ all_encounters[, death_in_year := ifelse((DOD - ADMITTIME) > 365, 0, 1)]
 all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
 
 if(args[1] == "ahrq"){
-    ahrq_total_matrix <- readRDS("../Data/Processed/ahrq_total_matrix.rds")
-    ahrq_binary_matrix <- readRDS("../Data/Processed/ahrq_binary_matrix.rds")
+    ahrq_total_matrix <- readRDS(paste0(args[2], "ahrq_total_matrix.rds"))
+    ahrq_binary_matrix <- readRDS(paste0(args[2], "ahrq_binary_matrix.rds"))
 
     ahrq_total_with_death <- merge(all_encounters, ahrq_total_matrix, by = "HADM_ID")
     ahrq_total_with_death[is.na(ahrq_total_with_death)] <- 0
-    saveRDS(ahrq_total_with_death, paste0(args[2], "ahrq_total_with_death.rds")
+    saveRDS(ahrq_total_with_death, paste0(args[3], "ahrq_total_with_death.rds"))
 
 } else if(args[1] == "ccs"){
-    ccs_total_matrix <- readRDS("../Data/Processed/ccs_total_matrix.rds")
-    ccs_binary_matrix <- readRDS("../Data/Processed/ccs_binary_matrix.rds")
+    ccs_total_matrix <- readRDS(paste0(args[2], "ccs_total_matrix.rds"))
+    ccs_binary_matrix <- readRDS(paste0(args[2], "ccs_binary_matrix.rds"))
 
 
     ccs_total_with_death <- merge(all_encounters, ccs_total_matrix, by = "HADM_ID")
     ccs_total_with_death[is.na(ccs_total_with_death)] <- 0
-    saveRDS(ccs_total_with_death, paste0(args[2], "ccs_total_with_death.rds")
+    saveRDS(ccs_total_with_death, paste0(args[3], "ccs_total_with_death.rds"))
 
 } else if(args[1] == "truncated"){
-    trunc_total_matrix <- readRDS("../Data/Processed/trunc_total_matrix.rds")
-    trunc_binary_matrix <- readRDS("../Data/Processed/trunc_binary_matrix.rds")
+    trunc_total_matrix <- readRDS(paste0(args[2], "trunc_total_matrix.rds"))
+    trunc_binary_matrix <- readRDS(paste0(args[2], "trunc_binary_matrix.rds"))
 
 
     trunc_total_with_death <- merge(all_encounters, trunc_total_matrix, by = "HADM_ID")
     trunc_total_with_death[is.na(trunc_total_with_death)] <- 0
-    saveRDS(trunc_total_with_death, paste0(args[2], "trunc_total_with_death.rds")
+    saveRDS(trunc_total_with_death, paste0(args[3], "trunc_total_with_death.rds"))
 
 } else if(args[1] == "raw"){
-    raw_total_matrix <- readRDS("../Data/Processed/raw_total_matrix.rds")
-    raw_binary_matrix <- readRDS("../Data/Processed/raw_binary_matrix.rds")
+    raw_total_matrix <- readRDS(paste0(args[2], "raw_total_matrix.rds"))
+    raw_binary_matrix <- readRDS(paste0(args[2], "raw_binary_matrix.rds"))
 
     raw_total_with_death <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
     raw_total_with_death[is.na(raw_total_with_death)] <- 0
-    saveRDS(raw_total_with_death, paste0(args[2], "raw_total_with_death.rds")
+    saveRDS(raw_total_with_death, paste0(args[3], "raw_total_with_death.rds"))
  
 }
 
