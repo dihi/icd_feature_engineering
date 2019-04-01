@@ -81,7 +81,7 @@ if(args[1] == "ahrq"){
   trunc_map$truncated <- substr(trunc_map$ICD9_CODE, 1, 3)
   trunc_map <- trunc_map[, c("HADM_ID", "truncated")]
   
-  
+  trunc_map <- trunc_map[truncated != "", ]
   trunc_total_matrix <- create_matrix(trunc_map, levels(as.factor(trunc_map$truncated)))
   trunc_binary_matrix <- data.frame(apply(trunc_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
   trunc_binary_matrix <- cbind(trunc_total_matrix[, 1], trunc_binary_matrix)
