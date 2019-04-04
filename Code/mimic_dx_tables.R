@@ -62,7 +62,7 @@ if(args[1] == "ahrq"){
   
   ahrq_total_matrix <- create_matrix(ahrq_map, levels(as.factor(ahrq_map$i)))
   ahrq_binary_matrix <- data.frame(apply(ahrq_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  ahrq_binary_matrix <- cbind(ahrq_total_matrix[, 1], ahrq_binary_matrix)
+  ahrq_binary_matrix <- cbind("HADM_ID" = ahrq_total_matrix[, 1], ahrq_binary_matrix)
   saveRDS(ahrq_total_matrix, paste0(args[2], "/ahrq_total_matrix.rds"))
   saveRDS(ahrq_binary_matrix, paste0(args[2], "/ahrq_binary_matrix.rds"))
   
@@ -72,7 +72,7 @@ if(args[1] == "ahrq"){
   
   ccs_total_matrix <- create_matrix(ccs_map, levels(as.factor(ccs_map$`CCS DIAGNOSIS CATEGORIES`)))
   ccs_binary_matrix <- data.frame(apply(ccs_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  ccs_binary_matrix <- cbind(ccs_total_matrix[, 1], ccs_binary_matrix)
+  ccs_binary_matrix <- cbind("HADM_ID" = ccs_total_matrix[, 1], ccs_binary_matrix)
   saveRDS(ccs_total_matrix, paste0(args[2], "/ccs_total_matrix.rds"))
   saveRDS(ccs_binary_matrix, paste0(args[2], "/ccs_binary_matrix.rds"))
   
@@ -84,7 +84,7 @@ if(args[1] == "ahrq"){
   trunc_map <- trunc_map[truncated != "", ]
   trunc_total_matrix <- create_matrix(trunc_map, levels(as.factor(trunc_map$truncated)))
   trunc_binary_matrix <- data.frame(apply(trunc_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  trunc_binary_matrix <- cbind(trunc_total_matrix[, 1], trunc_binary_matrix)
+  trunc_binary_matrix <- cbind("HADM_ID" = trunc_total_matrix[, 1], trunc_binary_matrix)
   saveRDS(trunc_total_matrix, paste0(args[2], "/trunc_total_matrix.rds"))
   saveRDS(trunc_binary_matrix, paste0(args[2], "/trunc_binary_matrix.rds"))
   
@@ -93,7 +93,7 @@ if(args[1] == "ahrq"){
   codes <- codes[ICD9_CODE != "",]
   raw_total_matrix <- create_matrix(codes, levels(as.factor(codes$ICD9_CODE)))
   raw_binary_matrix <- data.frame(apply(raw_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  raw_binary_matrix <- cbind(raw_total_matrix[, 1], raw_binary_matrix)
+  raw_binary_matrix <- cbind("HADM_ID" = raw_total_matrix[, 1], raw_binary_matrix)
   saveRDS(raw_total_matrix, paste0(args[2], "/raw_total_matrix.rds"))
   saveRDS(raw_binary_matrix, paste0(args[2], "/raw_binary_matrix.rds"))
 }

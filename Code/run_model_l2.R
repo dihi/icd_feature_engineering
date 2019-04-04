@@ -17,6 +17,20 @@ library(MLmetrics)
 # read in data
 ahrq_total_with_death <- readRDS("../Data/Final/ahrq_total_with_death.rds")
 ahrq_total_with_death <- ahrq_total_with_death[, -c(1)]
+ahrq_binary_with_death <- readRDS("../Data/Final/ahrq_binary_with_death.rds")
+ahrq_binary_with_death <- ahrq_binary_with_death[, -c(1)]
+ccs_total_with_death <- readRDS("../Data/Final/ccs_total_with_death.rds")
+ccs_total_with_death <- ccs_total_with_death[, -c(1)]
+ccs_binary_with_death <- readRDS("../Data/Final/ccs_binary_with_death.rds")
+ccs_binary_with_death <- ccs_binary_with_death[, -c(1)]
+trunc_total_with_death <- readRDS("../Data/Final/trunc_total_with_death.rds")
+trunc_total_with_death <- trunc_total_with_death[, -c(1)]
+trunc_binary_with_death <- readRDS("../Data/Final/trunc_binary_with_death.rds")
+trunc_binary_with_death <- trunc_binary_with_death[, -c(1)]
+raw_total_with_death <- readRDS("../Data/Final/raw_total_with_death.rds")
+raw_total_with_death <- raw_total_with_death[, -c(1)]
+raw_binary_with_death <- readRDS("../Data/Final/raw_binary_with_death.rds")
+raw_binary_with_death <- raw_binary_with_death[, -c(1)]
 
 ## RUN LOG REG MODEL
 
@@ -63,3 +77,17 @@ l2_calc <- function(death_matrix){
 # apply function to final datasets
 l2_ahrq_total_results <- l2_calc(ahrq_total_with_death)
 saveRDS(l2_ahrq_total_results, "../Output/l2_ahrq_total_results.rds")
+l2_ahrq_binary_results <- l2_calc(ahrq_binary_with_death)
+saveRDS(l2_ahrq_binary_results, "../Output/l2_ahrq_binary_results.rds")
+l2_ccs_total_results <- l2_calc(ccs_total_with_death)
+saveRDS(l2_ccs_total_results, "../Output/l2_ccs_total_results.rds")
+l2_ccs_binary_results <- l2_calc(ccs_binary_with_death)
+saveRDS(l2_ccs_binary_results, "../Output/l2_ccs_binary_results.rds")
+l2_trunc_total_results <- l2_calc(trunc_total_with_death)
+saveRDS(l2_trunc_total_results, "../Output/l2_trunc_total_results.rds")
+l2_trunc_binary_results <- l2_calc(trunc_binary_with_death)
+saveRDS(l2_trunc_binary_results, "../Output/l2_trunc_binary_results.rds")
+l2_raw_total_results <- l2_calc(raw_total_with_death)
+saveRDS(l2_raw_total_results, "../Output/l2_raw_total_results.rds")
+l2_raw_binary_results <- l2_calc(raw_binary_with_death)
+saveRDS(l2_raw_binary_results, "../Output/l2_raw_binary_results.rds")

@@ -17,6 +17,20 @@ library(MLmetrics)
 # read in data
 ahrq_total_with_death <- readRDS("../Data/Final/ahrq_total_with_death.rds")
 ahrq_total_with_death <- ahrq_total_with_death[, -c(1)]
+ahrq_binary_with_death <- readRDS("../Data/Final/ahrq_binary_with_death.rds")
+ahrq_binary_with_death <- ahrq_binary_with_death[, -c(1)]
+ccs_total_with_death <- readRDS("../Data/Final/ccs_total_with_death.rds")
+ccs_total_with_death <- ccs_total_with_death[, -c(1)]
+ccs_binary_with_death <- readRDS("../Data/Final/ccs_binary_with_death.rds")
+ccs_binary_with_death <- ccs_binary_with_death[, -c(1)]
+trunc_total_with_death <- readRDS("../Data/Final/trunc_total_with_death.rds")
+trunc_total_with_death <- trunc_total_with_death[, -c(1)]
+trunc_binary_with_death <- readRDS("../Data/Final/trunc_binary_with_death.rds")
+trunc_binary_with_death <- trunc_binary_with_death[, -c(1)]
+raw_total_with_death <- readRDS("../Data/Final/raw_total_with_death.rds")
+raw_total_with_death <- raw_total_with_death[, -c(1)]
+raw_binary_with_death <- readRDS("../Data/Final/raw_binary_with_death.rds")
+raw_binary_with_death <- raw_binary_with_death[, -c(1)]
 
 ## RUN LOG REG MODEL
 
@@ -30,7 +44,6 @@ split <- c(5000, 10000, 20000, 40000)
 # empty vector to store auc for 4 subset levels, both for complication and death
 
 rf_calc <- function(death_matrix){
-  death_matrix = ahrq_total_with_death
   auc <- data.frame(auc_death = numeric())
   f1 <- data.frame(f1_death = numeric())
   time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
@@ -72,3 +85,17 @@ rf_calc <- function(death_matrix){
 # apply function to final datasets
 rf_ahrq_total_results <- rf_calc(ahrq_total_with_death)
 saveRDS(rf_ahrq_total_results, "../Output/rf_ahrq_total_results.rds")
+rf_ahrq_binary_results <- rf_calc(ahrq_binary_with_death)
+saveRDS(rf_ahrq_binary_results, "../Output/rf_ahrq_binary_results.rds")
+rf_ccs_total_results <- rf_calc(ccs_total_with_death)
+saveRDS(rf_ccs_total_results, "../Output/rf_ccs_total_results.rds")
+rf_ccs_binary_results <- rf_calc(ccs_binary_with_death)
+saveRDS(rf_ccs_binary_results, "../Output/rf_ccs_binary_results.rds")
+rf_trunc_total_results <- rf_calc(trunc_total_with_death)
+saveRDS(rf_trunc_total_results, "../Output/rf_trunc_total_results.rds")
+rf_trunc_binary_results <- rf_calc(trunc_binary_with_death)
+saveRDS(rf_trunc_binary_results, "../Output/rf_trunc_binary_results.rds")
+rf_raw_total_results <- rf_calc(raw_total_with_death)
+saveRDS(rf_raw_total_results, "../Output/rf_raw_total_results.rds")
+rf_raw_binary_results <- rf_calc(raw_binary_with_death)
+saveRDS(rf_raw_binary_results, "../Output/rf_raw_binary_results.rds")
