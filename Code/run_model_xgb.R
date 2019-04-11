@@ -73,30 +73,28 @@ xgb_calc <- function(death_matrix){
     auc_death_all <- data.frame(auc = numeric())
     subset <- train_indices[1:i]
     
-    for(j in 1:nrow(params)){
-      set.seed(1)
-      model_death <- xgboost(data = x_matrix_death[subset,], 
-                             label = death_matrix$xdeath_in_year[subset], 
-                             params = params[j,], 
-                             objective = "binary:logistic", 
-                             nrounds = 150)
+    time_elapsed_death <- 
+      rbind(time_elapsed_death, 
+            system.time(for(j in 1:nrow(params)){
+                            set.seed(1)
+                            model_death <- xgboost(data = x_matrix_death[subset,], 
+                                                   label = death_matrix$xdeath_in_year[subset], 
+                                                   params = params[j,], 
+                                                   objective = "binary:logistic", 
+                                                   nrounds = 150)
       
       pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
       auc_death <- auc(death_matrix$xdeath_in_year[test_indices], pred_death)
       auc_death_all <- rbind(auc_death_all, data.frame(death = auc_death))
-    }
+    }))
     # find index of max auc
     auc_greatest_death <- which.max(auc_death_all$death)
     
-    # calculate time using parameters that generated max auc
-    time_elapsed_death <- 
-      rbind(time_elapsed_death, 
-            system.time(model_death <- 
-                          xgboost(data = x_matrix_death[subset,], 
-                                  label = death_matrix$xdeath_in_year[subset], 
-                                  params = params[auc_greatest_death,], 
-                                  objective = "binary:logistic", 
-                                  nrounds = 150)))
+    model_death <- xgboost(data = x_matrix_death[subset,],
+                           label = death_matrix$xdeath_in_year[subset], 
+                           params = params[auc_greatest_death,],
+                           objective = "binary:logistic",
+                           nrounds = 150)
     
     # bind max auc value to final auc dataframe
     pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
