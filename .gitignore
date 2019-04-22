@@ -1,16 +1,11 @@
 Data/*
+*.Rmd
 *.Rproj
 !Data/Crosswalk
 Code/.Rhistory*
 *.model
 *.Rdata*
 *.DS_Store*
-Output/*Data/*
-Output/*Data/*
-Output/*Data/*
-Output/*Data/*
-Output/*Data/*
-Output/*Data/*
 Output/*Data/*
 Output/*
 Code/raw*
