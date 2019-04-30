@@ -3,15 +3,12 @@
 ## Author: Aman Kansal
 
 library(xgboost)
-library(dplyr)
 library(caret)
 library(pROC)
-library(dplyr)
 library(data.table)
 library(Matrix)
 library(ROCR)
 library(MLmetrics)
-library(profvis)
 
 # read in data
 ahrq_total_with_death <- readRDS("../Data/Final/ahrq_total_with_death.rds")

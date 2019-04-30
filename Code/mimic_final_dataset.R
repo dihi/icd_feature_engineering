@@ -27,8 +27,8 @@ if (length(args)==0) {
   args[3] <- "../Data/Final/"
 }
 
-dir.create(args[2])
-dir.create(args[3])
+dir.create(args[2], showWarnings = FALSE)
+dir.create(args[3], showWarnings = FALSE)
 
 admissions <- admissions[, c("SUBJECT_ID", "HADM_ID", "ADMITTIME")]
 patients <- patients[, c("SUBJECT_ID", "GENDER", "DOB", "DOD")]
