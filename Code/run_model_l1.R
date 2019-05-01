@@ -20,7 +20,7 @@ if (length(args) == 0) {
 dir.create(args[2], showWarnings = FALSE)
 
 # Split sizes to test
-split <- c(5000, 10000, 20000, 40000)
+split <- c(5000, 10000, 20000, 35000)
 
 calc_l1 <- function(model_matrix, train_indices, test_indices){
   auc <- data.frame(auc_death = numeric())
