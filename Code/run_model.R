@@ -247,7 +247,7 @@ train_indices <- random_indices[1:round(0.8*length(random_indices))]
 test_indices <- random_indices[(round(0.8*length(random_indices)+1):length(random_indices))]
 
 total_results <- run_model(total_matrix, train_indices, test_indices)
-saveRDS(total_results, paste0(arguments$output_dir, arguments$options$model_type, "_", arguments$options$grouping, "_total_results.rds"))
+saveRDS(total_results, paste0(arguments$options$output_dir, arguments$options$model_type, "_", arguments$options$grouping, "_total_results.rds"))
 
 print(paste0("Running ", arguments$options$model_type, " model with Binary codes grouped by ", arguments$options$grouping))
 binary_matrix <- readRDS(paste0("../Data/Final/", arguments$options$grouping, "_binary_with_death.rds"))
