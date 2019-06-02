@@ -145,7 +145,7 @@ rf_calc <- function(model_matrix, train_indices, test_indices){
   
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x))
   
-  x_matrix_death <- sparse.model.matrix(feat_death_in_year~., model_matrix[, -1])
+  x_matrix_death <- sparse.model.matrix(feat_death_in_year~., model_matrix)[,-1]
   
   # Parameters to tune
   params <- expand.grid(eta =  1,
@@ -170,7 +170,8 @@ rf_calc <- function(model_matrix, train_indices, test_indices){
                                      label = model_matrix$feat_death_in_year[subset], 
                                      params = params[j,], 
                                      objective = "binary:logistic", 
-                                     nrounds = 1)
+                                     nrounds = 1,
+                                     verbose = 0)
               
               pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
               auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
@@ -215,7 +216,7 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
   
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x))
   
-  x_matrix_death <- sparse.model.matrix(feat_death_in_year~., model_matrix[, -1])
+  x_matrix_death <- sparse.model.matrix(feat_death_in_year~., model_matrix)[, -1]
   
   # factors to dummy vars using model.matrix, take out 'DIED'
   # model.matrix creates an intercept column, need to remove
@@ -243,7 +244,8 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
                                      label = model_matrix$feat_death_in_year[subset], 
                                      params = params[j,], 
                                      objective = "binary:logistic", 
-                                     nrounds = 150)
+                                     nrounds = 150,
+                                     verbose = 0)
               
               pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
               auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
@@ -256,7 +258,8 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
                            label = model_matrix$feat_death_in_year[subset], 
                            params = params[auc_greatest_death,],
                            objective = "binary:logistic",
-                           nrounds = 150)
+                           nrounds = 150,
+                           verbose = 0)
     
     # bind max auc value to final auc dataframe
     pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
