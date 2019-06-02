@@ -40,47 +40,103 @@ random_indices <- sample(1:nrow(ahrq_total_with_death))
 train_indices <- random_indices[1:round(0.8*length(random_indices))]
 test_indices <- random_indices[(round(0.8*length(random_indices)+1):length(random_indices))]
 # split vector
-split <- c(5000, 10000, 20000, 40000)
+split <- c(5000, 10000, 20000, 35000)
 # empty vector to store auc for 4 subset levels, both for complication and death
 
 rf_calc <- function(death_matrix){
-  auc <- data.frame(auc_death = numeric())
-  f1 <- data.frame(f1_death = numeric())
+  names(death_matrix) = gsub('[^a-zA-Z0-9]+', '_', names(death_matrix))
+  death_matrix$GENDER <- as.factor(death_matrix$GENDER)
+  
+  # dataframe to hold auc from best combination of parameters for each split
+  auc_death_final <- data.frame(auc_death = numeric())
   time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
-  death_matrix[, c("GENDER", "death_in_year") := lapply(.SD, as.factor), .SDcols = c("GENDER", "death_in_year")]
+  f1 <- data.frame(f1_death = numeric())
+  predictions <- data.frame(pred_death = numeric(), xdeath_in_year = numeric(), sample_size = numeric())
+  
+  names(death_matrix) <- sapply(names(death_matrix), function(x) paste0('x', x))
+  
+  x_matrix_death <- sparse.model.matrix(xdeath_in_year~., death_matrix[, -1])
+  
+  # factors to dummy vars using model.matrix, take out 'DIED'
+  # model.matrix creates an intercept column, need to remove
+  
+  # create a parameter grid (3 combos right now)
+  params <- expand.grid(eta =  1,
+                        max_depth = c(4,5,6),
+                        gamma = 1,
+                        min_child_weight = c(3,5),
+                        colsample_bynode= c(0.5, 0.8),
+                        subsample = c(0.5, 0.8),
+                        num_parallel_tree = 500)
   
   for(i in split){
-    size <- train_indices[1:i]
     
-    # randomForest::tuneRF to tune hyperparameters, specifically mtry
-    # mtry =  the number of variables considered as candidate splitting variables at each split
-    # tuneRF: mtry default for classification is sqrt(numFeatures); then default/stepFactor in each direction and only keeps going if OOB (Out of Bag) error improves by 0.05
-    set.seed(1)
+    # dataframe to hold aucs for ALL combinations of parameters for a given split
+    auc_death_all <- data.frame(auc = numeric())
+    subset <- train_indices[1:i]
+    
     time_elapsed_death <- 
       rbind(time_elapsed_death, 
-            system.time(tuneRF_model_death <- 
-                          tuneRF(subset(death_matrix[size,], select = -c(death_in_year)), 
-                                 death_matrix[size, ][["death_in_year"]], 
-                                 ntreeTry = 50, 
-                                 stepFactor = 2, 
-                                 improve = 0.05, 
-                                 doBest = TRUE,
-                                 plot = FALSE)))
-    pred_death <- predict(tuneRF_model_death, death_matrix[test_indices, ], type = "prob")
-    auc_death <- auc(as.numeric(as.character(death_matrix[test_indices, ][["death_in_year"]])), pred_death[,2])
+            system.time(for(j in 1:nrow(params)){
+              set.seed(1)
+              model_death <- xgboost(data = x_matrix_death[subset,], 
+                                     label = death_matrix$xdeath_in_year[subset], 
+                                     params = params[j,], 
+                                     objective = "binary:logistic", 
+                                     nrounds = 1)
+              
+              pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
+              auc_death <- auc(death_matrix$xdeath_in_year[test_indices], pred_death)
+              auc_death_all <- rbind(auc_death_all, data.frame(death = auc_death))
+            }))
+    # find index of max auc
+    auc_greatest_death <- which.max(auc_death_all$death)
     
-    predictions <- cbind.data.frame(pred_death = pred_death[,2], real_death = death_matrix[test_indices, "death_in_year"])
+    model_death <- xgboost(data = x_matrix_death[subset,],
+                           label = death_matrix$xdeath_in_year[subset], 
+                           params = params[auc_greatest_death,],
+                           objective = "binary:logistic",
+                           nrounds = 1)
     
-    auc <- rbind(auc, data.frame(auc_death = auc_death))
+    # bind max auc value to final auc dataframe
+    pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
+    auc_death <- auc(death_matrix$xdeath_in_year[test_indices], pred_death)
+    auc_death_final <- rbind(auc_death_final, data.frame(auc_death = auc_death_all$death[auc_greatest_death]))
     
+    predictions_death <- cbind(pred_death = pred_death, death_matrix[test_indices, "xdeath_in_year"], sample_size = i)
+    predictions <- rbind(predictions, predictions_death)
     # calculate F1 score
-    f1_death <- F1_Score(death_matrix[test_indices, ][["death_in_year"]], round(pred_death[,2], digits = 0))
+    f1_death <- F1_Score(death_matrix$xdeath_in_year[test_indices], round(pred_death, digits = 0))
+    
+    # add to F1 dataframe
     f1 <- rbind(f1, data.frame(f1_death = f1_death))
   }
-  # remove the dummy 0,0,0 row in time_elapsed, created just to maintain col header
+  # first row of time_elapsed is dummy
   time_elapsed_death <- time_elapsed_death[-1, ]
-  return(list(auc, f1, time_elapsed_death, predictions))
+  return(list(auc_death_final, f1, time_elapsed_death, predictions))  
 }
+
+# param_list <- list(
+#   "colsample_bynode" = 0.8,
+#   "learning_rate" = 1,
+#   "max_depth" = 5, 
+#   "num_parallel_tree" = 500,
+#   "objective" = 'binary:logistic',
+#   "subsample" = 0.8
+# )
+# 
+# ahrq_total_with_death[, c("GENDER", "death_in_year") := lapply(.SD, as.factor), .SDcols = c("GENDER", "death_in_year")]
+# 
+# x_matrix_death <- sparse.model.matrix(death_in_year~., ahrq_total_with_death)[, -1]
+# 
+# 
+# example_model <- xgboost(data = x_matrix_death[size,], 
+#                         label = ahrq_total_with_death[size, ][["death_in_year"]], 
+#                         params = param_list,
+#                         nrounds = 1)
+
+
+
 
 # apply function to final datasets
 rf_ahrq_total_results <- rf_calc(ahrq_total_with_death)

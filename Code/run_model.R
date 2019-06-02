@@ -3,10 +3,20 @@
 # A generic script to run all of the models
 # Command-line arguments will be used to specify which models to run
 
-library(optparse)
+suppress_all <- function(x){
+  suppressWarnings(suppressMessages(x))
+}
+
+
+suppress_all(library(optparse))
+suppress_all(library(data.table))
+suppress_all(library(lubridate))
+suppress_all(library(glmnet))
+suppress_all(library(xgboost))
+suppress_all(library(ROCR))
+suppress_all(library(MLmetrics))
 
 # Command-line Arguments
-
 option_list <- list(
   make_option(c("-g", "--grouping"), action = "store", default = "ahrq",
               help = "The grouping method used for icd codes. One of 'ahrq', 'ccs', 'trunc', or 'raw'"),
@@ -22,16 +32,6 @@ option_list <- list(
 parser <- OptionParser(usage = "%prog [options]", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = 0)
 
-
-library(data.table)
-library(lubridate)
-library(glmnet)
-library(xgboost)
-library(randomForest)
-library(ROCR)
-library(MLmetrics)
-
-
 # Create output directory
 dir.create(arguments$options$output_dir, showWarnings = FALSE)
 
@@ -41,10 +41,13 @@ split <- c(5000, 10000, 20000, 35000)
 # Model Run and Evaluation Code ==============================
 # l1-penalized logistic regression
 calc_l1 <- function(model_matrix, train_indices, test_indices){
+  # Initialize data.frame to store results 
   auc <- data.frame(auc_death = numeric())
   f1 <- data.frame(f1_death = numeric())
+  predictions <- data.frame(pred_death = numeric(), feat_death_in_year = numeric(), sample_size = numeric())
+  
   # cannot create empty data frame for time_elapsed in the same way because we are trying to rbind proc_time objects
-  time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
+  time_elapsed <- data.frame(user = 0, system = 0, elapsed = 0)
   names(model_matrix) <- gsub('\\W', '_', names(model_matrix)) # Prevents naming errors
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x)) # Prevents error in coercing to sprase matrix
   
@@ -52,34 +55,46 @@ calc_l1 <- function(model_matrix, train_indices, test_indices){
   x_matrix <- sparse.model.matrix(feat_death_in_year ~., data = model_matrix)[,-1]
   
   for(i in split){
-    # build model
+    # Set indices for training based on split size
     subset_indices <- train_indices[1:i]
     set.seed(1)
-    time_elapsed_death <- rbind(time_elapsed_death, system.time(model_death <- cv.glmnet(y = model_matrix$feat_death_in_year[subset_indices], x = x_matrix[subset_indices, ], family = "binomial", maxit = 10000)))
-    # prediction on the holdout
+    
+    # Fit model and get timing information
+    time_elapsed <- rbind(time_elapsed, system.time(model_death <- cv.glmnet(y = model_matrix$feat_death_in_year[subset_indices], 
+                                                                                         x = x_matrix[subset_indices, ], 
+                                                                                         family = "binomial", 
+                                                                                         maxit = 10000)))
+    # prediction on the holdout set
     pred_death <- predict(model_death, x_matrix[test_indices,], type = "response")
-    predictions <- cbind(pred_death = pred_death[,1], model_matrix[test_indices, "feat_death_in_year"])
-    # calculate auc
+    
+    # add predictions to the stored results
+    predictions_death <- cbind(pred_death = pred_death[,1], model_matrix[test_indices, "feat_death_in_year"], sample_size = i)
+    predictions <- rbind(predictions, predictions_death)
+    
+    # calculate auc and store results
     auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
-    # add to auc dataframe
     auc <- rbind(auc, data.frame(auc_death = auc_death))
-    # calculate F1 score
+    
+    # calculate F1 and store results
     f1_death <- F1_Score(model_matrix$feat_death_in_year[test_indices], round(pred_death[,1], digits = 0))
-    # add to F1 dataframe
     f1 <- rbind(f1, data.frame(f1_death = f1_death))
   }
   # remove the dummy 0,0,0 row in time_elapsed, created just to maintain col header
-  time_elapsed_death <- time_elapsed_death[-1, ]
-  return(list(auc, f1, time_elapsed_death, predictions))
+  time_elapsed <- time_elapsed[-1, ]
+  return(list(auc, f1, time_elapsed, predictions))
 }
 
 # l2-penalized logistic regression
 
 calc_l2 <- function(model_matrix, train_indices, test_indices){
+  
+  # Initialize data.frame to store results 
   auc <- data.frame(auc_death = numeric())
   f1 <- data.frame(f1_death = numeric())
+  predictions <- data.frame(pred_death = numeric(), feat_death_in_year = numeric(), sample_size = numeric())
+  
   # cannot create empty data frame for time_elapsed in the same way because we are trying to rbind proc_time objects
-  time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
+  time_elapsed <- data.frame(user = 0, system = 0, elapsed = 0)
   names(model_matrix) <- gsub('\\W', '_', names(model_matrix)) # Prevents naming errors
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x)) # Prevents error in coercing to sprase matrix
   
@@ -87,65 +102,106 @@ calc_l2 <- function(model_matrix, train_indices, test_indices){
   x_matrix <- sparse.model.matrix(feat_death_in_year ~., data = model_matrix)[,-1]
   
   for(i in split){
-    # build model
+    # Set indices for training based on split size
     subset_indices <- train_indices[1:i]
     set.seed(1)
-    time_elapsed_death <- rbind(time_elapsed_death, system.time(model_death <- cv.glmnet(y = model_matrix$feat_death_in_year[subset_indices], x = x_matrix[subset_indices, ], alpha = 0, family = "binomial", maxit = 10000)))
-    # prediction on the holdout
+    
+    # Fit model and get timing information
+    time_elapsed <- rbind(time_elapsed, system.time(model_death <- cv.glmnet(y = model_matrix$feat_death_in_year[subset_indices], 
+                                                                             x = x_matrix[subset_indices, ],
+                                                                             alpha = 0,
+                                                                             family = "binomial", 
+                                                                             maxit = 10000)))
+    # prediction on the holdout set
     pred_death <- predict(model_death, x_matrix[test_indices,], type = "response")
-    predictions <- cbind(pred_death = pred_death[,1], model_matrix[test_indices, "feat_death_in_year"])
-    # calculate auc
+    
+    # add predictions to the stored results
+    predictions_death <- cbind(pred_death = pred_death[,1], model_matrix[test_indices, "feat_death_in_year"], sample_size = i)
+    predictions <- rbind(predictions, predictions_death)
+    
+    # calculate auc and store results
     auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
-    # add to auc dataframe
     auc <- rbind(auc, data.frame(auc_death = auc_death))
-    # calculate F1 score
+    
+    # calculate F1 and store results
     f1_death <- F1_Score(model_matrix$feat_death_in_year[test_indices], round(pred_death[,1], digits = 0))
+    f1 <- rbind(f1, data.frame(f1_death = f1_death))
+  }
+  # remove the dummy 0,0,0 row in time_elapsed, created just to maintain col header
+  time_elapsed <- time_elapsed[-1, ]
+  return(list(auc, f1, time_elapsed, predictions))
+}
+
+rf_calc <- function(model_matrix, train_indices, test_indices){
+  
+  names(model_matrix) = gsub('[^a-zA-Z0-9]+', '_', names(model_matrix))
+  model_matrix$GENDER <- as.factor(model_matrix$GENDER)
+
+  # dataframe to hold auc from best combination of parameters for each split
+  auc_death_final <- data.frame(auc_death = numeric())
+  time_elapsed <- data.frame(user = 0, system = 0, elapsed = 0)
+  f1 <- data.frame(f1_death = numeric())
+  predictions <- data.frame(pred_death = numeric(), feat_death_in_year = numeric(), sample_size = numeric())
+  
+  names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x))
+  
+  x_matrix_death <- sparse.model.matrix(feat_death_in_year~., model_matrix[, -1])
+  
+  # Parameters to tune
+  params <- expand.grid(eta =  1,
+                        max_depth = c(4,5,6),
+                        gamma = 1,
+                        min_child_weight = c(3,5),
+                        colsample_bynode= c(0.5, 0.8),
+                        subsample = c(0.5, 0.8),
+                        num_parallel_tree = 500)
+  
+  for(i in split){
+    
+    # dataframe to hold aucs for ALL combinations of parameters for a given split
+    auc_death_all <- data.frame(auc = numeric())
+    subset <- train_indices[1:i]
+    
+    time_elapsed <- 
+      rbind(time_elapsed, 
+            system.time(for(j in 1:nrow(params)){
+              set.seed(1)
+              model_death <- xgboost(data = x_matrix_death[subset,], 
+                                     label = model_matrix$feat_death_in_year[subset], 
+                                     params = params[j,], 
+                                     objective = "binary:logistic", 
+                                     nrounds = 1)
+              
+              pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
+              auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
+              auc_death_all <- rbind(auc_death_all, data.frame(death = auc_death))
+            }))
+    # find index of max auc
+    auc_greatest_death <- which.max(auc_death_all$death)
+    
+    model_death <- xgboost(data = x_matrix_death[subset,],
+                           label = model_matrix$feat_death_in_year[subset], 
+                           params = params[auc_greatest_death,],
+                           objective = "binary:logistic",
+                           nrounds = 1)
+    
+    # bind max auc value to final auc dataframe
+    pred_death <- predict(model_death, x_matrix_death[test_indices,], type="response")
+    auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
+    auc_death_final <- rbind(auc_death_final, data.frame(auc_death = auc_death_all$death[auc_greatest_death]))
+    
+    predictions_death <- cbind(pred_death = pred_death, model_matrix[test_indices, "feat_death_in_year"], sample_size = i)
+    predictions <- rbind(predictions, predictions_death)
+    # calculate F1 score
+    f1_death <- F1_Score(model_matrix$feat_death_in_year[test_indices], round(pred_death, digits = 0))
+    
     # add to F1 dataframe
     f1 <- rbind(f1, data.frame(f1_death = f1_death))
   }
-  # remove the dummy 0,0,0 row in time_elapsed, created just to maintain col header
-  time_elapsed_death <- time_elapsed_death[-1, ]
-  return(list(auc, f1, time_elapsed_death, predictions))
+  # first row of time_elapsed is dummy
+  time_elapsed <- time_elapsed[-1, ]
+  return(list(auc_death_final, f1, time_elapsed, predictions))  
 }
-rf_calc <- function(model_matrix, train_indices, test_indices){
-  auc <- data.frame(auc_death = numeric())
-  f1 <- data.frame(f1_death = numeric())
-  time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
-  model_matrix[, c("GENDER", "death_in_year") := lapply(.SD, as.factor), .SDcols = c("GENDER", "death_in_year")]
-  
-  for(i in split){
-    size <- train_indices[1:i]
-    
-    # randomForest::tuneRF to tune hyperparameters, specifically mtry
-    # mtry =  the number of variables considered as candidate splitting variables at each split
-    # tuneRF: mtry default for classification is sqrt(numFeatures); then default/stepFactor in each direction and only keeps going if OOB (Out of Bag) error improves by 0.05
-    set.seed(1)
-    time_elapsed_death <- 
-      rbind(time_elapsed_death, 
-            system.time(tuneRF_model_death <- 
-                          tuneRF(subset(model_matrix[size,], select = -c(death_in_year)), 
-                                 model_matrix[size, ][["death_in_year"]], 
-                                 ntreeTry = 50, 
-                                 stepFactor = 2, 
-                                 improve = 0.05, 
-                                 doBest = TRUE,
-                                 plot = FALSE)))
-    pred_death <- predict(tuneRF_model_death, model_matrix[test_indices, ], type = "prob")
-    auc_death <- auc(as.numeric(as.character(model_matrix[test_indices, ][["death_in_year"]])), pred_death[,2])
-    
-    predictions <- cbind.data.frame(pred_death = pred_death[,2], real_death = model_matrix[test_indices, "death_in_year"])
-    
-    auc <- rbind(auc, data.frame(auc_death = auc_death))
-    
-    # calculate F1 score
-    f1_death <- F1_Score(model_matrix[test_indices, ][["death_in_year"]], round(pred_death[,2], digits = 0))
-    f1 <- rbind(f1, data.frame(f1_death = f1_death))
-  }
-  # remove the dummy 0,0,0 row in time_elapsed, created just to maintain col header
-  time_elapsed_death <- time_elapsed_death[-1, ]
-  return(list(auc, f1, time_elapsed_death, predictions))
-}
-
 
 xgb_calc <- function(model_matrix, train_indices, test_indices){
   names(model_matrix) = gsub('\\W', '_', names(model_matrix))
@@ -153,8 +209,9 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
   
   # dataframe to hold auc from best combination of parameters for each split
   auc_death_final <- data.frame(auc_death = numeric())
-  time_elapsed_death <- data.frame(user = 0, system = 0, elapsed = 0)
+  time_elapsed <- data.frame(user = 0, system = 0, elapsed = 0)
   f1 <- data.frame(f1_death = numeric())
+  predictions <- data.frame(pred_death = numeric(), xdeath_in_year = numeric(), sample_size = numeric())
   
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x))
   
@@ -178,8 +235,8 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
     auc_death_all <- data.frame(auc = numeric())
     subset <- train_indices[1:i]
     
-    time_elapsed_death <- 
-      rbind(time_elapsed_death, 
+    time_elapsed <- 
+      rbind(time_elapsed, 
             system.time(for(j in 1:nrow(params)){
               set.seed(1)
               model_death <- xgboost(data = x_matrix_death[subset,], 
@@ -206,7 +263,8 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
     auc_death <- auc(model_matrix$feat_death_in_year[test_indices], pred_death)
     auc_death_final <- rbind(auc_death_final, data.frame(auc_death = auc_death_all$death[auc_greatest_death]))
     
-    predictions <- cbind(pred_death = pred_death, model_matrix[test_indices, "feat_death_in_year"])
+    predictions_death <- cbind(pred_death = pred_death, model_matrix[test_indices, "feat_death_in_year"], sample_size = i)
+    predictions <- rbind(predictions, predictions_death)
     
     # calculate F1 score
     f1_death <- F1_Score(model_matrix$feat_death_in_year[test_indices], round(pred_death, digits = 0))
@@ -215,8 +273,8 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
     f1 <- rbind(f1, data.frame(f1_death = f1_death))
   }
   # first row of time_elapsed is dummy
-  time_elapsed_death <- time_elapsed_death[-1, ]
-  return(list(auc_death_final, f1, time_elapsed_death, predictions))  
+  time_elapsed <- time_elapsed[-1, ]
+  return(list(auc_death_final, f1, time_elapsed, predictions))  
 }
 
 
@@ -258,6 +316,4 @@ binary_results <- run_model(binary_matrix, train_indices, test_indices)
 saveRDS(binary_results, paste0(arguments$options$output_dir, arguments$options$model_type, "_", arguments$options$grouping, "_binary_results.rds"))
 
 
-
-#
 
