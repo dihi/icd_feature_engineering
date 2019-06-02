@@ -211,7 +211,7 @@ xgb_calc <- function(model_matrix, train_indices, test_indices){
   auc_death_final <- data.frame(auc_death = numeric())
   time_elapsed <- data.frame(user = 0, system = 0, elapsed = 0)
   f1 <- data.frame(f1_death = numeric())
-  predictions <- data.frame(pred_death = numeric(), xdeath_in_year = numeric(), sample_size = numeric())
+  predictions <- data.frame(pred_death = numeric(), feat_death_in_year = numeric(), sample_size = numeric())
   
   names(model_matrix) <- sapply(names(model_matrix), function(x) paste0('feat_', x))
   
