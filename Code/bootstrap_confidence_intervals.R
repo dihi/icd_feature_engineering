@@ -93,10 +93,8 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
 files_to_process <- list.files(arguments$options$output_dir)
 
 for(f in files_to_process){
-  if(grepl("ccs", f)){
-    if(arguments$options$verbose == TRUE){
-      print(paste0("Now processing: ", f))
-    }
+  if(arguments$options$verbose == TRUE){
+    print(paste0("Now processing: ", f))
     temp_results <- readRDS(paste0(arguments$options$output_dir, f))
     bootstrapped_results <- bootstrap_measures(temp_results, num_boots = arguments$options$num_boots)
     if(arguments$options$verbose == TRUE){
@@ -104,5 +102,4 @@ for(f in files_to_process){
     }
     saveRDS(bootstrapped_results, paste0(arguments$options$output_dir, gsub("results.rds", "bootstrap.rds", f)))
   }
-
 }
