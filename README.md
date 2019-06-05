@@ -16,7 +16,10 @@ On Mac OS X:
  4. Move the slider for memory up to 8GB (at least; more is preferred)
 
 On Windows:
-TODO:
+ 1. Right click the Docker icon in the taskbar
+ 2. Navigate to Settings
+ 3. Click Advanced
+ 4. Move the slider for memory up to 8096MB (at least; more is preferred)
 
 
 ## Instructions

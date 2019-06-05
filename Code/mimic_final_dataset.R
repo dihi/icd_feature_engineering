@@ -8,7 +8,7 @@
 ## input_directory here refers to where the output of mimic_dx_tables.R has run
 
 # READ IN DATA
-suppress_all <- function(x){
+suppress_all <- function(x) {
   suppressWarnings(suppressMessages(x))
 }
 
@@ -48,7 +48,7 @@ all_encounters[, AGE := year(ADMITTIME) - year(DOB)]
 all_encounters[, death_in_year := ifelse((DOD - ADMITTIME) > 365, 0, 1)]
 all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
 
-if(args[1] == "ahrq"){
+if(args[1] == "ahrq") {
     ahrq_total_matrix <- readRDS(paste0(args[2], "ahrq_total_matrix.rds"))
     ahrq_binary_matrix <- readRDS(paste0(args[2], "ahrq_binary_matrix.rds"))
 
@@ -60,7 +60,7 @@ if(args[1] == "ahrq"){
     ahrq_binary_with_death[is.na(ahrq_binary_with_death)] <- 0
     saveRDS(ahrq_binary_with_death, paste0(args[3], "ahrq_binary_with_death.rds"))
 
-} else if(args[1] == "ccs"){
+} else if(args[1] == "ccs") {
     ccs_total_matrix <- readRDS(paste0(args[2], "ccs_total_matrix.rds"))
     ccs_binary_matrix <- readRDS(paste0(args[2], "ccs_binary_matrix.rds"))
 
@@ -72,7 +72,7 @@ if(args[1] == "ahrq"){
     ccs_binary_with_death[is.na(ccs_binary_with_death)] <- 0
     saveRDS(ccs_binary_with_death, paste0(args[3], "ccs_binary_with_death.rds"))
 
-} else if(args[1] == "truncated"){
+} else if(args[1] == "truncated") {
     trunc_total_matrix <- readRDS(paste0(args[2], "trunc_total_matrix.rds"))
     trunc_binary_matrix <- readRDS(paste0(args[2], "trunc_binary_matrix.rds"))
 
@@ -84,7 +84,7 @@ if(args[1] == "ahrq"){
     trunc_binary_with_death[is.na(trunc_binary_with_death)] <- 0
     saveRDS(trunc_binary_with_death, paste0(args[3], "trunc_binary_with_death.rds"))
 
-} else if(args[1] == "raw"){
+} else if(args[1] == "raw") {
     raw_total_matrix <- readRDS(paste0(args[2], "raw_total_matrix.rds"))
     raw_binary_matrix <- readRDS(paste0(args[2], "raw_binary_matrix.rds"))
 

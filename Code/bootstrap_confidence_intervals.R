@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 # Bootstrap AUC and F1 measures
 
-suppress_all <- function(x){
+suppress_all <- function(x) {
   suppressWarnings(suppressMessages(x))
 }
 
@@ -21,7 +21,7 @@ option_list <- list(
 parser <- OptionParser(usage = "%prog [options]", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = 0)
 
-bootstrap_measures <- function(results, num_boots, debug = FALSE){
+bootstrap_measures <- function(results, num_boots, debug = FALSE) {
   # Generates bootstrapped AUC and F1 measures
   # Params
   # ------
@@ -52,7 +52,7 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
     
     for (n in seq_along(1:num_boots)){
       if (debug == TRUE){
-        if (n %% 100){
+        if (n %% 100 == 0){
           print(n)
         }
       }
@@ -92,13 +92,13 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
 
 files_to_process <- list.files(arguments$options$output_dir)
 
-for (f in files_to_process){
+for (f in files_to_process) {
   if (grepl(".rds", f) == TRUE) {
-    if (arguments$options$verbose == TRUE){
+    if (arguments$options$verbose == TRUE) {
       print(paste0("Now processing: ", f))
       temp_results <- readRDS(paste0(arguments$options$output_dir, f))
       bootstrapped_results <- bootstrap_measures(temp_results, num_boots = arguments$options$num_boots)
-      if (arguments$options$verbose == TRUE){
+      if (arguments$options$verbose == TRUE) {
         print(paste0("Writing results for: ", f))
       }
       saveRDS(bootstrapped_results, paste0(arguments$options$output_dir, gsub("results.rds", "bootstrap.rds", f)))

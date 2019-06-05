@@ -28,11 +28,11 @@ results_list = list()
 bootstrap_list = list()
 
 for (f in list.files(arguments$options$output_dir)){
-  if(grepl(arguments$options$model_type, f)){
-    if(grepl("results", f)){
+  if (grepl(arguments$options$model_type, f)){
+    if (grepl("results", f)){
       results_list[[f]] <- readRDS(paste0(arguments$options$output_dir, f))
     }
-    if(grepl("bootstrap", f)){
+    if (grepl("bootstrap", f)){
       bootstrap_list[[f]] <- readRDS(paste0(arguments$options$output_dir, f))
     }
   }

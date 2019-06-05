@@ -6,7 +6,7 @@
 
 # Usage:
 # Rscript mimic_dx_tables.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
-suppress_all <- function(x){
+suppress_all <- function(x) {
   suppressWarnings(suppressMessages(x))
 }
 suppress_all(library(data.table))
@@ -31,21 +31,21 @@ codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
 # group_name is the name of the column that has the ICD groups
 # Returns a data.frame where the columns are the groups and each entity is the number of times 
 # the code appears for a given ID
-  create_matrix_total <- function(map, group_name){
+create_matrix_total <- function(map, group_name) {
     res <- map[, count := .N, by = list(HADM_ID, map[[group_name]])]
     res <- dcast(res, HADM_ID ~ map[[group_name]], fun.aggregate = length, value.var = 'count')
     return(res)
-  }
+}
   
-  create_matrix_binary <- function(map, group_name){
+create_matrix_binary <- function(map, group_name) {
     map$count <- 1L
     map <- unique(map)
     map <- dcast(map, HADM_ID ~ map[[group_name]], value.var = 'count', fill = 0)
     return(map)
-  }
+}
 
 
-if(args[1] == "ahrq"){
+if (args[1] == "ahrq") {
   # Read in crosswalk
   icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
   
@@ -64,7 +64,7 @@ if(args[1] == "ahrq"){
   ahrq_binary_matrix <- create_matrix_binary(ahrq_map, 'i')
   saveRDS(ahrq_binary_matrix, paste0(args[2], "/ahrq_binary_matrix.rds"))
   
-} else if(args[1] == "ccs"){
+} else if(args[1] == "ccs") {
   # Read in crosswalk
   icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
   
@@ -81,7 +81,7 @@ if(args[1] == "ahrq"){
   ccs_binary_matrix <- create_matrix_binary(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
   saveRDS(ccs_binary_matrix, paste0(args[2], "/ccs_binary_matrix.rds"))
   
-} else if(args[1] == "truncated"){
+} else if(args[1] == "truncated") {
   # Create map
   codes$truncated <- substr(codes$ICD9_CODE, 1, 3)
   codes <- codes[, c("HADM_ID", "truncated")]
@@ -95,7 +95,7 @@ if(args[1] == "ahrq"){
   trunc_binary_matrix <- create_matrix_binary(codes, 'truncated')
   saveRDS(trunc_binary_matrix, paste0(args[2], "/trunc_binary_matrix.rds"))
   
-} else if(args[1] == "raw"){
+} else if(args[1] == "raw") {
   # Create map
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
