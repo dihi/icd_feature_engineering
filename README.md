@@ -22,4 +22,4 @@ Before you begin, make sure you have access to the MIMIC-III Database. You will 
 
 4. Run the following command which will mount the folder into the container and run the experiment. Replace `<path_to_top_level_directory>` with the full path on your system to the cloned repository
 
-```docker run -v <path_to_top_level_directory>:/opt/icd_feature_engineering/ icd_feature_engineering cd /opt/icd_feature_engineering/Code && ./run_entire_experiment.sh```
+```docker run -v <path_to_top_level_directory>:/opt/ -w /opt/Code icd_feature_engineering ./run_entire_experiment.sh```
