@@ -1,2 +1,2 @@
 #!/bin/bash
-./bootstrap_confidence_intervals.R -v
+./bootstrap_confidence_intervals.R -v -n 200
