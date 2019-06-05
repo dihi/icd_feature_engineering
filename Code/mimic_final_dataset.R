@@ -8,8 +8,13 @@
 ## input_directory here refers to where the output of mimic_dx_tables.R has run
 
 # READ IN DATA
-library(data.table)
-library(lubridate)
+suppress_all <- function(x){
+  suppressWarnings(suppressMessages(x))
+}
+
+suppress_all(library(data.table))
+suppress_all(library(lubridate))
+
 Sys.setenv(TZ = "America/New_York")
 
 admissions <- fread("../Data/Raw/ADMISSIONS.csv")
