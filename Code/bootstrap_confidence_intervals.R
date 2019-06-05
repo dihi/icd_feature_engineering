@@ -41,8 +41,8 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
                                 lower_bound = numeric(),
                                 upper_bound = numeric())
   
-  for(sample_size in unique(result_df[["sample_size"]])){
-    if(debug == TRUE){
+  for (sample_size in unique(result_df[["sample_size"]])){
+    if (debug == TRUE){
       print(paste0("sample_size: ", sample_size))
     }
     subset_df <- result_df[result_df['sample_size'] == sample_size, c("pred_death", "feat_death_in_year")]
@@ -50,9 +50,9 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
     auc_bootstrapped <- numeric(num_boots)
     f1_bootstrapped <- numeric(num_boots)
     
-    for(n in seq_along(1:num_boots)){
-      if(debug == TRUE){
-        if(n %% 100){
+    for (n in seq_along(1:num_boots)){
+      if (debug == TRUE){
+        if (n %% 100){
           print(n)
         }
       }
@@ -92,14 +92,16 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE){
 
 files_to_process <- list.files(arguments$options$output_dir)
 
-for(f in files_to_process){
-  if(arguments$options$verbose == TRUE){
-    print(paste0("Now processing: ", f))
-    temp_results <- readRDS(paste0(arguments$options$output_dir, f))
-    bootstrapped_results <- bootstrap_measures(temp_results, num_boots = arguments$options$num_boots)
-    if(arguments$options$verbose == TRUE){
-      print(paste0("Writing results for: ", f))
+for (f in files_to_process){
+  if (grepl(".rds", f) == TRUE) {
+    if (arguments$options$verbose == TRUE){
+      print(paste0("Now processing: ", f))
+      temp_results <- readRDS(paste0(arguments$options$output_dir, f))
+      bootstrapped_results <- bootstrap_measures(temp_results, num_boots = arguments$options$num_boots)
+      if (arguments$options$verbose == TRUE){
+        print(paste0("Writing results for: ", f))
+      }
+      saveRDS(bootstrapped_results, paste0(arguments$options$output_dir, gsub("results.rds", "bootstrap.rds", f)))
     }
-    saveRDS(bootstrapped_results, paste0(arguments$options$output_dir, gsub("results.rds", "bootstrap.rds", f)))
   }
 }
