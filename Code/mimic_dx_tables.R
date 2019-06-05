@@ -6,7 +6,10 @@
 
 # Usage:
 # Rscript mimic_dx_tables.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
-library(data.table)
+suppress_all <- function(x){
+  suppressWarnings(suppressMessages(x))
+}
+suppress_all(library(data.table))
 
 # Parse Command Line Arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -28,11 +31,18 @@ codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
 # group_name is the name of the column that has the ICD groups
 # Returns a data.frame where the columns are the groups and each entity is the number of times 
 # the code appears for a given ID
-create_matrix <- function(map, group_name){
-  res <- map[, count := .N, by = list(HADM_ID, map[[group_name]])]
-  res <- dcast(res, HADM_ID ~ map[[group_name]], value.var = 'count')
-  return(res)
-}
+  create_matrix_total <- function(map, group_name){
+    res <- map[, count := .N, by = list(HADM_ID, map[[group_name]])]
+    res <- dcast(res, HADM_ID ~ map[[group_name]], fun.aggregate = length, value.var = 'count')
+    return(res)
+  }
+  
+  create_matrix_binary <- function(map, group_name){
+    map$count <- 1L
+    map <- unique(map)
+    map <- dcast(map, HADM_ID ~ map[[group_name]], value.var = 'count', fill = 0)
+    return(map)
+  }
 
 
 if(args[1] == "ahrq"){
@@ -47,10 +57,11 @@ if(args[1] == "ahrq"){
   ahrq_map <- ahrq_map[complete.cases(ahrq_map),]
   
   # Create matrices and save
-  ahrq_total_matrix <- create_matrix(ahrq_map, 'i')
-  ahrq_binary_matrix <- data.frame(apply(ahrq_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  ahrq_binary_matrix <- cbind(ahrq_total_matrix[, 1], ahrq_binary_matrix)
+  ahrq_total_matrix <- create_matrix_total(ahrq_map, 'i')
   saveRDS(ahrq_total_matrix, paste0(args[2], "/ahrq_total_matrix.rds"))
+  remove(ahrq_total_matrix)
+  
+  ahrq_binary_matrix <- create_matrix_binary(ahrq_map, 'i')
   saveRDS(ahrq_binary_matrix, paste0(args[2], "/ahrq_binary_matrix.rds"))
   
 } else if(args[1] == "ccs"){
@@ -63,24 +74,25 @@ if(args[1] == "ahrq"){
   ccs_map <- ccs_map[complete.cases(ccs_map),]
   
   # Create matrices and save
-  ccs_total_matrix <- create_matrix(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
-  ccs_binary_matrix <- data.frame(apply(ccs_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  ccs_binary_matrix <- cbind(ccs_total_matrix[, 1], ccs_binary_matrix)
+  ccs_total_matrix <- create_matrix_total(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
   saveRDS(ccs_total_matrix, paste0(args[2], "/ccs_total_matrix.rds"))
+  remove(ccs_total_matrix)
+  
+  ccs_binary_matrix <- create_matrix_binary(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
   saveRDS(ccs_binary_matrix, paste0(args[2], "/ccs_binary_matrix.rds"))
   
 } else if(args[1] == "truncated"){
   # Create map
-  trunc_map <- codes
-  trunc_map$truncated <- substr(trunc_map$ICD9_CODE, 1, 3)
-  trunc_map <- trunc_map[, c("HADM_ID", "truncated")]
-  trunc_map <- trunc_map[truncated != "", ]
+  codes$truncated <- substr(codes$ICD9_CODE, 1, 3)
+  codes <- codes[, c("HADM_ID", "truncated")]
+  codes <- codes[truncated != "", ]
   
   # Create matrices and save
-  trunc_total_matrix <- create_matrix(trunc_map, 'truncated')
-  trunc_binary_matrix <- data.frame(apply(trunc_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  trunc_binary_matrix <- cbind(trunc_total_matrix[, 1], trunc_binary_matrix)
+  trunc_total_matrix <- create_matrix_total(codes, 'truncated')
   saveRDS(trunc_total_matrix, paste0(args[2], "/trunc_total_matrix.rds"))
+  remove(trunc_total_matrix)
+  
+  trunc_binary_matrix <- create_matrix_binary(codes, 'truncated')
   saveRDS(trunc_binary_matrix, paste0(args[2], "/trunc_binary_matrix.rds"))
   
 } else if(args[1] == "raw"){
@@ -88,11 +100,12 @@ if(args[1] == "ahrq"){
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
   
-  # Create matrices and save
-  raw_total_matrix <- create_matrix(codes, "ICD9_CODE")
-  raw_binary_matrix <- data.frame(apply(raw_total_matrix[, -c(1)], 2, function(x) as.numeric(x>0)))
-  raw_binary_matrix <- cbind(raw_total_matrix[, 1], raw_binary_matrix)
+  #Create matrices and save
+  raw_total_matrix <- create_matrix_total(codes, "ICD9_CODE")
   saveRDS(raw_total_matrix, paste0(args[2], "/raw_total_matrix.rds"))
+  remove(raw_total_matrix)
+  
+  raw_binary_matrix <- create_matrix_binary(codes, "ICD9_CODE")
   saveRDS(raw_binary_matrix, paste0(args[2], "/raw_binary_matrix.rds"))
 }
 
