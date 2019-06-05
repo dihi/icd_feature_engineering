@@ -49,8 +49,6 @@ build_grouping_regex <- function(prefix){
 
 grouping_regex <- build_grouping_regex(arguments$options$model_type)
 
-print(grouping_regex)
-
 for (i in names(results_list)){
   if (grepl("binary", i)){
     grouping <- regmatches(i, regexpr(grouping_regex, i, perl = TRUE))
