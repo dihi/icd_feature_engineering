@@ -32,11 +32,13 @@ On Windows:
 
 ```./00_create_directories.sh```
 
-3. Navigate to the top-level directory and build the dockerfile
+3. Copy the `ADMISSIONS.csv`, `DIAGNOSES_ICD.csv` and `PATIENTS.csv` files into the Data/Raw/ direcotry.
+
+4. Navigate to the top-level directory and build the dockerfile
 
 ```cd .. && sudo docker build -t icd_feature_engineering .```
 
-4. Run the following command which will mount the folder into the container and run the experiment. Replace `<path_to_top_level_directory>` with the full path on your system to the cloned repository
+5. Run the following command which will mount the folder into the container and run the experiment. Replace `<path_to_top_level_directory>` with the full path on your system to the cloned repository
 
 ```docker run -v <path_to_top_level_directory>:/opt/ -w /opt/Code icd_feature_engineering ./run_entire_experiment.sh```
 
