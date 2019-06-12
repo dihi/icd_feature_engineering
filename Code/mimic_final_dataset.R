@@ -91,6 +91,7 @@ if(args[1] == "ahrq") {
   
 } else if(args[1] == "raw") {
 
+  raw_total_matrix <- readRDS(paste0(args[2], "raw_total_matrix.rds"))
   raw_total_with_death <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
   raw_total_with_death[is.na(raw_total_with_death)] <- 0
   saveRDS(raw_total_with_death, paste0(args[3], "raw_total_with_death.rds"))
