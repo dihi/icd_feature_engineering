@@ -29,6 +29,7 @@ On Windows:
 ```git clone https://github.com/dihi/icd_feature_engineering.git```
 
 2. Navigate to the `Code` folder and run the following to initialize the directories
+
 ```cd ./icd_feature_engineering/Code```
 
 ```./00_create_directories.sh```
