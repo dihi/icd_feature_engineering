@@ -70,15 +70,15 @@ if (args[1] == "ahrq") {
   
   # Create Codes map
   ccs_map <- merge(codes, icd9_ccs_cw, by.x = "ICD9_CODE", by.y ="ICD-9-CM CODE", all.x = TRUE, allow.cartesian = TRUE)
-  ccs_map <- as.data.table(ccs_map[, c("HADM_ID", "CCS DIAGNOSIS CATEGORIES")])
+  ccs_map <- as.data.table(ccs_map[, c("HADM_ID", "CCS CATEGORY DESCRIPTION")])
   ccs_map <- ccs_map[complete.cases(ccs_map),]
   
   # Create matrices and save
-  ccs_total_matrix <- create_matrix_total(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
+  ccs_total_matrix <- create_matrix_total(ccs_map, 'CCS CATEGORY DESCRIPTION')
   saveRDS(ccs_total_matrix, paste0(args[2], "/ccs_total_matrix.rds"))
   remove(ccs_total_matrix)
   
-  ccs_binary_matrix <- create_matrix_binary(ccs_map, 'CCS DIAGNOSIS CATEGORIES')
+  ccs_binary_matrix <- create_matrix_binary(ccs_map, 'CCS CATEGORY DESCRIPTION')
   saveRDS(ccs_binary_matrix, paste0(args[2], "/ccs_binary_matrix.rds"))
   
 } else if(args[1] == "truncated") {
