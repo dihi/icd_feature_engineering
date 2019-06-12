@@ -29,10 +29,11 @@ On Windows:
 ```git clone https://github.com/dihi/icd_feature_engineering.git```
 
 2. Navigate to the `Code` folder and run the following to initialize the directories
+```cd ./icd_feature_engineering/Code```
 
 ```./00_create_directories.sh```
 
-3. Copy the `ADMISSIONS.csv`, `DIAGNOSES_ICD.csv` and `PATIENTS.csv` files into the Data/Raw/ direcotry.
+3. Copy the `ADMISSIONS.csv`, `DIAGNOSES_ICD.csv` and `PATIENTS.csv` files into the `Data/Raw/` directory.
 
 4. Navigate to the top-level directory and build the dockerfile
 
