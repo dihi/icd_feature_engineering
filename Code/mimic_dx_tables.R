@@ -52,16 +52,16 @@ if (args[1] == "ahrq") {
   # Create codes map
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
-  ahrq_map <- merge(codes, icd9_ahrq_cw, by.x = "ICD9_CODE", by.y = "V1", all.x = TRUE, allow.cartesian = TRUE)
-  ahrq_map <- as.data.table(ahrq_map[, c("HADM_ID", "i")]) # i corresponds to ahrq groups
+  ahrq_map <- merge(codes, icd9_ahrq_cw, by.x = "ICD9_CODE", by.y = "codes", all.x = TRUE, allow.cartesian = TRUE)
+  ahrq_map <- as.data.table(ahrq_map[, c("HADM_ID", "names")]) # i corresponds to ahrq groups
   ahrq_map <- ahrq_map[complete.cases(ahrq_map),]
   
   # Create matrices and save
-  ahrq_total_matrix <- create_matrix_total(ahrq_map, 'i')
+  ahrq_total_matrix <- create_matrix_total(ahrq_map, 'names')
   saveRDS(ahrq_total_matrix, paste0(args[2], "/ahrq_total_matrix.rds"))
   remove(ahrq_total_matrix)
   
-  ahrq_binary_matrix <- create_matrix_binary(ahrq_map, 'i')
+  ahrq_binary_matrix <- create_matrix_binary(ahrq_map, 'names')
   saveRDS(ahrq_binary_matrix, paste0(args[2], "/ahrq_binary_matrix.rds"))
   
 } else if(args[1] == "ccs") {
