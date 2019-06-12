@@ -44,3 +44,6 @@ On Windows:
 
 The experiments will take several hours to fully complete. There are hundreds of models being run (cross-validation for each combination of sample size split, model, representation, etc.)
 
+## Crosswalks
+
+The crosswalks used in this experiment have also been provided and the code used to generate them is included. AHRQ-Elixhauser crosswalk is provided by the R `icd` package and the single level CCS crosswalks can be found on the AHRQ website.
