@@ -80,7 +80,9 @@ if(args[1] == "ahrq") {
   trunc_total_with_death[is.na(trunc_total_with_death)] <- 0
   saveRDS(trunc_total_with_death, paste0(args[3], "trunc_total_with_death.rds"))
   remove(trunc_total_with_death)
+  gc()
   remove(trunc_total_matrix)
+  gc()
   
   trunc_binary_matrix <- readRDS(paste0(args[2], "trunc_binary_matrix.rds"))
   trunc_binary_with_death <- merge(all_encounters, trunc_binary_matrix, by = "HADM_ID")
@@ -88,20 +90,19 @@ if(args[1] == "ahrq") {
   saveRDS(trunc_binary_with_death, paste0(args[3], "trunc_binary_with_death.rds"))
   
 } else if(args[1] == "raw") {
-  raw_total_matrix <- readRDS(paste0(args[2], "raw_total_matrix.rds"))
-  
-  
+
   raw_total_with_death <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
   raw_total_with_death[is.na(raw_total_with_death)] <- 0
   saveRDS(raw_total_with_death, paste0(args[3], "raw_total_with_death.rds"))
   remove(raw_total_matrix)
+  gc()
   remove(raw_total_with_death)
-  
+  gc()
   raw_binary_matrix <- readRDS(paste0(args[2], "raw_binary_matrix.rds"))
   raw_binary_with_death <- merge(all_encounters, raw_binary_matrix, by = "HADM_ID")
   raw_binary_with_death[is.na(raw_binary_with_death)] <- 0
   saveRDS(raw_binary_with_death, paste0(args[3], "raw_binary_with_death.rds"))
-  
+
 }
 
 
