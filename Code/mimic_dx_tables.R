@@ -71,15 +71,15 @@ create_matrix_binary <- function(map, group_name) {
 }
 
 create_model_matrix <- function(model_df){
-  model_matrix <- vector(mode = "list", length = ncol(raw_total_matrix))
-  for(col in seq_along(names(raw_total_matrix))){
-    temp <- raw_total_matrix[, names(raw_total_matrix)[col], with = F][, RowIdx := .I]
+  model_matrix <- vector(mode = "list", length = ncol(model_df))
+  for(col in seq_along(names(model_df))){
+    temp <- model_df[, names(model_df)[col], with = F][, RowIdx := .I]
     temp <- temp[temp[[1L]] != 0]
     temp <- sparseMatrix(
       x = temp[[1L]], 
       i = temp$RowIdx, 
       j = rep(1L, nrow(temp)), 
-      dims = c(nrow(raw_total_matrix), 1L)
+      dims = c(nrow(model_df), 1L)
     )
     model_matrix[[col]] <- temp
   }
