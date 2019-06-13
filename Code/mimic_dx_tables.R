@@ -6,10 +6,17 @@
 
 # Usage:
 # Rscript mimic_dx_tables.R {"ccs", "truncated", "ahrq", "raw"} {output_directory}
-suppress_all <- function(x) {
+
+Sys.setenv(TZ = "America/New_York")
+
+suppress_all <- function(x){
   suppressWarnings(suppressMessages(x))
 }
+
 suppress_all(library(data.table))
+suppress_all(library(Matrix))
+suppress_all(library(lubridate))
+
 
 # Parse Command Line Arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -25,7 +32,26 @@ dir.create(args[2], showWarnings = FALSE)
 # Read in data
 admissions <- fread("../Data/Raw/ADMISSIONS.csv")
 codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
+patients <- fread("../Data/Raw/PATIENTS.csv")
 
+# Admissions
+admissions <- admissions[, c("SUBJECT_ID", "HADM_ID", "ADMITTIME")]
+patients <- patients[, c("SUBJECT_ID", "GENDER", "DOB", "DOD")]
+
+# create data.table of IDs with demographic features
+all_encounters <- merge(admissions, patients, by = "SUBJECT_ID", all.x = TRUE)
+all_encounters[, c("ADMITTIME", "DOB", "DOD") := lapply(.SD, ymd_hms), .SDcols = c("ADMITTIME", "DOB", "DOD")]
+all_encounters[, AGE := year(ADMITTIME) - year(DOB)]
+all_encounters[, death_in_year := ifelse((year(DOD) - year(ADMITTIME)) > 365, 0, 1)]
+all_encounters$death_in_year[is.na(all_encounters$death_in_year)] <- 0
+all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
+all_encounters$GENDER <- ifelse(all_encounters$GENDER == "M", 1, 0)
+
+all_encounters$GENDER <- as.integer(all_encounters$GENDER)
+all_encounters$AGE <- as.integer(all_encounters$AGE)
+
+remove(admissions)
+remove(patients)
 # Define Helper function
 # Takes in map, a 2-column DataFrame that contains an ID and the associated ICD grouping category
 # group_name is the name of the column that has the ICD groups
@@ -42,6 +68,23 @@ create_matrix_binary <- function(map, group_name) {
     map <- unique(map)
     map <- dcast(map, HADM_ID ~ map[[group_name]], value.var = 'count', fill = 0)
     return(map)
+}
+
+create_model_matrix <- function(model_df){
+  model_matrix <- vector(mode = "list", length = ncol(raw_total_matrix))
+  for(col in seq_along(names(raw_total_matrix))){
+    temp <- raw_total_matrix[, names(raw_total_matrix)[col], with = F][, RowIdx := .I]
+    temp <- temp[temp[[1L]] != 0]
+    temp <- sparseMatrix(
+      x = temp[[1L]], 
+      i = temp$RowIdx, 
+      j = rep(1L, nrow(temp)), 
+      dims = c(nrow(raw_total_matrix), 1L)
+    )
+    model_matrix[[col]] <- temp
+  }
+  model_matrix <- do.call(cbind, model_matrix)
+  return (model_matrix)
 }
 
 
@@ -102,13 +145,28 @@ if (args[1] == "ahrq") {
   
   #Create matrices and save
   raw_total_matrix <- create_matrix_total(codes, "ICD9_CODE")
-  saveRDS(raw_total_matrix, paste0(args[2], "/raw_total_matrix.rds"))
+  raw_total_matrix <- merge(all_encounters, raw_total_matrix, by = "HADM_ID")
+  
+  death_in_year <- raw_total_matrix$death_in_year
+  
+  raw_total_matrix <- raw_total_matrix[, -c("HADM_ID", "death_in_year")]
+  raw_total_matrix <- create_model_matrix(raw_total_matrix)
+  
+  final_list <- list(raw_total_matrix, death_in_year)
+  saveRDS(final_list, paste0(args[2], "/raw_total_matrix.rds"))
   remove(raw_total_matrix)
+  remove(final_list)
   
   raw_binary_matrix <- create_matrix_binary(codes, "ICD9_CODE")
-  saveRDS(raw_binary_matrix, paste0(args[2], "/raw_binary_matrix.rds"))
+  raw_binary_matrix <- merge(all_encounters, raw_binary_matrix, by = "HADM_ID")
+  
+  death_in_year <- raw_binary_matrix$death_in_year
+  
+  raw_binary_matrix <- raw_binary_matrix[, -c("HADM_ID", "death_in_year")]
+  raw_binary_matrix <- create_model_matrix(raw_binary_matrix)
+  
+  final_list <- list(raw_binary_matrix, death_in_year)
+  saveRDS(final_list, paste0(args[2], "/raw_binary_matrix.rds"))
 }
-
-
 
 
