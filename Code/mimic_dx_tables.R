@@ -137,7 +137,7 @@ if (args[1] == "ahrq") {
 } else if(args[1] == "ccs") {
   # Read in crosswalk
   icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
-  
+  icd9_ccs_cw <- icd9_ccs_cw[, c("ICD-9-CM CODE", "CCS CATEGORY DESCRIPTION")]
   # Create Codes map
   ccs_map <- merge(codes, icd9_ccs_cw, by.x = "ICD9_CODE", by.y ="ICD-9-CM CODE", all.x = TRUE, allow.cartesian = TRUE)
   ccs_map <- as.data.table(ccs_map[, c("HADM_ID", "CCS CATEGORY DESCRIPTION")])
@@ -158,7 +158,7 @@ if (args[1] == "ahrq") {
   ccs_binary_matrix <- create_matrix(ccs_map, 'CCS CATEGORY DESCRIPTION', type = "binary")
   ccs_binary_matrix <- merge(all_encounters, ccs_binary_matrix, by = "HADM_ID")
   
-  ccs_binary_matrix <- ccs_binary_matrix[, c("HADM_ID", "death_in_year")]
+  ccs_binary_matrix <- ccs_binary_matrix[, -c("HADM_ID", "death_in_year")]
   ccs_binary_matrix <- create_model_matrix(ccs_binary_matrix)
   
   saveRDS(list(ccs_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/ccs_binary_matrix.rds"))
@@ -175,7 +175,7 @@ if (args[1] == "ahrq") {
   
   death_in_year <- trunc_total_matrix$death_in_year
   
-  trunc_total_matrix <- trunc_total_matrix[, c("HADM_ID", "death_in_year")]
+  trunc_total_matrix <- trunc_total_matrix[, -c("HADM_ID", "death_in_year")]
   trunc_total_matrix <- create_model_matrix(trunc_total_matrix)
   
   saveRDS(list(trunc_total_matrix, death_in_year), paste0(arguments$options$output_dir, "/trunc_total_matrix.rds"))
@@ -184,7 +184,7 @@ if (args[1] == "ahrq") {
   trunc_binary_matrix <- create_matrix(codes, 'truncated', type = "binary")
   trunc_binary_matrix <- merge(all_encounters, trunc_binary_matrix, by = "HADM_ID")
   
-  trunc_binary_matrix <- trunc_binary_matrix[, c("HADM_ID", "death_in_year")]
+  trunc_binary_matrix <- trunc_binary_matrix[, -c("HADM_ID", "death_in_year")]
   trunc_binary_matrix <- create_model_matrix(trunc_binary_matrix)
   
   saveRDS(list(trunc_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/trunc_binary_matrix.rds"))

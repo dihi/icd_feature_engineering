@@ -22,7 +22,7 @@ parser <- OptionParser(usage = "%prog [options]", option_list = option_list)
 arguments <- parse_args(parser, positional_arguments = 0)
 
 bootstrap_measures <- function(results, num_boots, debug = FALSE) {
-  # Generates bootstrapped AUC and F1 measures
+  # Generates bootstrapped AUC and pr measures
   # Params
   # ------
   # results (data.frame): results dataframe produced by model run experiments
@@ -45,10 +45,10 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE) {
     if (debug == TRUE){
       print(paste0("sample_size: ", sample_size))
     }
-    subset_df <- result_df[result_df['sample_size'] == sample_size, c("pred_death", "feat_death_in_year")]
+    subset_df <- result_df[result_df['sample_size'] == sample_size, c("pred_death", "death_in_year")]
     
     auc_bootstrapped <- numeric(num_boots)
-    f1_bootstrapped <- numeric(num_boots)
+    pr_bootstrapped <- numeric(num_boots)
     
     for (n in seq_along(1:num_boots)){
       if (debug == TRUE){
@@ -59,14 +59,14 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE) {
       # Generate sample indices
       sample_indices <- sample(1:nrow(subset_df), size = nrow(subset_df), replace = TRUE)
       temp_predictions <- subset_df$pred_death[sample_indices]
-      temp_label <- subset_df$feat_death_in_year[sample_indices]
+      temp_label <- subset_df$death_in_year[sample_indices]
       auc_bootstrapped[n] <- auc(temp_label, temp_predictions)
-      f1_bootstrapped[n] <- F1_Score(temp_label, round(temp_predictions, digits = 0))
+      pr_bootstrapped[n] <- PRAUC(temp_predictions, temp_label)
     }
     
     # Calculate percentiles
     auc_percentiles <- quantile(auc_bootstrapped, c(0.025, 0.975))
-    f1_percentiles <- quantile(f1_bootstrapped, c(0.025, 0.975))
+    pr_percentiles <- quantile(pr_bootstrapped, c(0.025, 0.975))
     
     bootstrapped_df <- rbind(bootstrapped_df, data.frame(
                                                 sample_size = sample_size,
@@ -76,9 +76,9 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE) {
     ))
     bootstrapped_df <- rbind(bootstrapped_df, data.frame(
                                                 sample_size = sample_size,
-                                                measure = "F1",
-                                                lower_bound = f1_percentiles[1],
-                                                upper_bound = f1_percentiles[2]
+                                                measure = "pr",
+                                                lower_bound = pr_percentiles[1],
+                                                upper_bound = pr_percentiles[2]
     ))
     
   }
@@ -93,7 +93,7 @@ bootstrap_measures <- function(results, num_boots, debug = FALSE) {
 files_to_process <- list.files(arguments$options$output_dir)
 
 for (f in files_to_process) {
-  if (grepl(".rds", f) == TRUE) {
+  if (grepl(".rds", f) == TRUE & grepl("results", f) == TRUE) {
     if (arguments$options$verbose == TRUE) {
       print(paste0("Now processing: ", f))
       temp_results <- readRDS(paste0(arguments$options$output_dir, f))

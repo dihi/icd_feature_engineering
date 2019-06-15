@@ -1,5 +1,6 @@
-# ICD Feature Engineering
-
+<p align="center">
+    <h1 align="center">ICD Feature Engineering</h2>
+</p>
 This repository contains all of the code and infrastructure necessary to reproduce the results of an experiment examining different representations of ICD codes and their contribution to performance of machine learning models on the MIMIC-III database. In order to adhere to the values of reproducible research, the entire experiment is easily reproducible cross-platform with the help of Docker.
 
 ## Requirements
@@ -26,23 +27,33 @@ On Windows:
 
 1. Clone the repository
 
-```git clone https://github.com/dihi/icd_feature_engineering.git```
+```sh
+git clone https://github.com/dihi/icd_feature_engineering.git
+```
 
 2. Navigate to the `Code` folder and run the following to initialize the directories
 
-```cd ./icd_feature_engineering/Code```
+```sh
+cd ./icd_feature_engineering/Code
+```
 
-```./00_create_directories.sh```
+```sh
+./00_create_directories.sh
+```
 
 3. Copy the `ADMISSIONS.csv`, `DIAGNOSES_ICD.csv` and `PATIENTS.csv` files into the `Data/Raw/` directory.
 
 4. Navigate to the top-level directory and build the dockerfile
 
-```cd .. && sudo docker build -t icd_feature_engineering .```
+```sh
+cd .. && sudo docker build -t icd_feature_engineering .
+```
 
 5. Run the following command which will mount the folder into the container and run the experiment. Make sure you are currently located in the top level directory. Otherwise, repace `$(pwd)` with the full path to the top-level directory.
 
-```docker run -v $(pwd):/opt/ -w /opt/Code icd_feature_engineering ./run_entire_experiment.sh```
+```sh
+sudo docker run -v $(pwd):/opt/ -w /opt/Code icd_feature_engineering ./run_entire_experiment.sh
+```
 
 The experiments will take several hours to fully complete. There are hundreds of models being run (cross-validation for each combination of sample size split, model, representation, etc.)
 
