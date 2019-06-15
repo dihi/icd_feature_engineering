@@ -48,6 +48,7 @@ all_encounters[, c("ADMITTIME", "DOB", "DOD") := lapply(.SD, ymd), .SDcols = c("
 all_encounters[, AGE := year(ADMITTIME) - year(DOB)]
 all_encounters[, death_in_year := ifelse((DOD - ADMITTIME) > 365, 0, 1)]
 all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
+all_encounters$death_in_year[is.na(all_encounters$death_in_year)] <- 0
 
 if(args[1] == "ahrq") {
   ahrq_total_matrix <- readRDS(paste0(args[2], "ahrq_total_matrix.rds"))
