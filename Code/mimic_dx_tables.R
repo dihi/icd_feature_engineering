@@ -26,7 +26,7 @@ suppress_all(library(optparse))
 option_list <- list(
   make_option(c("-g", "--grouping"), action = "store", default = "ahrq",
               help = "The grouping method used for icd codes. One of 'ahrq', 'ccs', 'trunc', or 'raw'"),
-  make_option(c("-o", "--output_dir"), action =  "store", default = "..Data/Processed/",
+  make_option(c("-o", "--output_dir"), action =  "store", default = "../Data/Processed/",
               help = "The directory where the output matrices gets stored")
 )
 
@@ -101,7 +101,7 @@ create_model_matrix <- function(model_df){
 }
 
 
-if (args$options$grouping == "ahrq") {
+if (arguments$options$grouping == "ahrq") {
   # Read in crosswalk
   icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
   
@@ -134,7 +134,7 @@ if (args$options$grouping == "ahrq") {
   
   saveRDS(list(ahrq_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/ahrq_binary_matrix.rds"))
   
-} else if(args$options$grouping == "ccs") {
+} else if(arguments$options$grouping == "ccs") {
   # Read in crosswalk
   icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
   icd9_ccs_cw <- icd9_ccs_cw[, c("ICD-9-CM CODE", "CCS CATEGORY DESCRIPTION")]
@@ -163,7 +163,7 @@ if (args$options$grouping == "ahrq") {
   
   saveRDS(list(ccs_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/ccs_binary_matrix.rds"))
   
-} else if(args$options$grouping == "truncated") {
+} else if(arguments$options$grouping == "truncated") {
   # Create map
   codes$truncated <- substr(codes$ICD9_CODE, 1, 3)
   codes <- codes[, c("HADM_ID", "truncated")]
@@ -189,7 +189,7 @@ if (args$options$grouping == "ahrq") {
   
   saveRDS(list(trunc_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/trunc_binary_matrix.rds"))
   
-} else if(args$options$grouping == "raw") {
+} else if(arguments$options$grouping == "raw") {
   # Create map
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
