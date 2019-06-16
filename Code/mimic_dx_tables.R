@@ -101,7 +101,7 @@ create_model_matrix <- function(model_df){
 }
 
 
-if (args[1] == "ahrq") {
+if (args$options$grouping == "ahrq") {
   # Read in crosswalk
   icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
   
@@ -134,7 +134,7 @@ if (args[1] == "ahrq") {
   
   saveRDS(list(ahrq_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/ahrq_binary_matrix.rds"))
   
-} else if(args[1] == "ccs") {
+} else if(args$options$grouping == "ccs") {
   # Read in crosswalk
   icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
   icd9_ccs_cw <- icd9_ccs_cw[, c("ICD-9-CM CODE", "CCS CATEGORY DESCRIPTION")]
@@ -163,7 +163,7 @@ if (args[1] == "ahrq") {
   
   saveRDS(list(ccs_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/ccs_binary_matrix.rds"))
   
-} else if(args[1] == "truncated") {
+} else if(args$options$grouping == "truncated") {
   # Create map
   codes$truncated <- substr(codes$ICD9_CODE, 1, 3)
   codes <- codes[, c("HADM_ID", "truncated")]
@@ -189,7 +189,7 @@ if (args[1] == "ahrq") {
   
   saveRDS(list(trunc_binary_matrix, death_in_year), paste0(arguments$options$output_dir, "/trunc_binary_matrix.rds"))
   
-} else if(args[1] == "raw") {
+} else if(args$options$grouping == "raw") {
   # Create map
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
   codes <- codes[ICD9_CODE != "",]
