@@ -10,3 +10,6 @@ Output/*Data/*
 Output/*
 Code/raw*
 .Rproj.user
+packrat/lib*/
+packrat/*
+!packrat/packrat.lock
