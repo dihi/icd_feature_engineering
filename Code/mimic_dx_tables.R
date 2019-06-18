@@ -26,7 +26,7 @@ suppress_all(library(optparse))
 option_list <- list(
   make_option(c("-g", "--grouping"), action = "store", default = "ahrq",
               help = "The grouping method used for icd codes. One of 'ahrq', 'ccs', 'trunc', or 'raw'"),
-  make_option(c("-o", "--output_dir"), action =  "store", default = "../Data/Processed/",
+  make_option(c("-o", "--output_dir"), action =  "store", default = "./Data/Processed/",
               help = "The directory where the output matrices gets stored")
 )
 
@@ -41,9 +41,9 @@ dir.create(arguments$options$output_dir, showWarnings = FALSE)
 
 
 # Read in data
-admissions <- fread("../Data/Raw/ADMISSIONS.csv")
-codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
-patients <- fread("../Data/Raw/PATIENTS.csv")
+admissions <- fread("./Data/Raw/ADMISSIONS.csv")
+codes <- fread("./Data/Raw/DIAGNOSES_ICD.csv")
+patients <- fread("./Data/Raw/PATIENTS.csv")
 
 # Admissions
 admissions <- admissions[, c("SUBJECT_ID", "HADM_ID", "ADMITTIME")]
@@ -103,7 +103,7 @@ create_model_matrix <- function(model_df){
 
 if (arguments$options$grouping == "ahrq") {
   # Read in crosswalk
-  icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
+  icd9_ahrq_cw <- fread("./Data/Crosswalk/icd9_ahrq.csv")
   
   # Create codes map
   codes <- codes[, c("HADM_ID", "ICD9_CODE")]
@@ -136,7 +136,7 @@ if (arguments$options$grouping == "ahrq") {
   
 } else if(arguments$options$grouping == "ccs") {
   # Read in crosswalk
-  icd9_ccs_cw <- fread("../Data/Crosswalk/icd9_to_singleCCScategory.csv")
+  icd9_ccs_cw <- fread("./Data/Crosswalk/icd9_to_singleCCScategory.csv")
   icd9_ccs_cw <- icd9_ccs_cw[, c("ICD-9-CM CODE", "CCS CATEGORY DESCRIPTION")]
   # Create Codes map
   ccs_map <- merge(codes, icd9_ccs_cw, by.x = "ICD9_CODE", by.y ="ICD-9-CM CODE", all.x = TRUE, allow.cartesian = TRUE)

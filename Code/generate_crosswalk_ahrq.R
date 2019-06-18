@@ -15,4 +15,4 @@ for (element in names(icd9_map_ahrq)){
 cw <- cbind(codes, names)
 cw <- data.frame(cw, stringsAsFactors = FALSE)
 
-write.csv(cw, "../Data/Crosswalk/icd9_ahrq.csv", row.names=FALSE)
+write.csv(cw, "./Data/Crosswalk/icd9_ahrq.csv", row.names=FALSE)

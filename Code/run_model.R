@@ -19,7 +19,7 @@ suppress_all(library(MLmetrics))
 option_list <- list(
   make_option(c("-g", "--grouping"), action = "store", default = "ahrq",
               help = "The grouping method used for icd codes. One of 'ahrq', 'ccs', 'trunc', or 'raw'"),
-  make_option(c("-o", "--output_dir"), action =  "store", default = "../Output/",
+  make_option(c("-o", "--output_dir"), action =  "store", default = "./Output/",
               help = "The directory where the output gets stored"),
   make_option(c("-m", "--model_type"), action = "store", default = "l1",
               help = "The model type to be run. One of 'l1', 'l2', 'rf', or 'xgb'")
@@ -236,7 +236,7 @@ if (arguments$options$model_type == "l1"){
 # Run Models and store results
 
 print(paste0("Running ", arguments$options$model_type, " model with Total codes grouped by ", arguments$options$grouping))
-total_matrix_list <- readRDS(paste0("../Data/Processed/", arguments$options$grouping, "_total_matrix.rds"))
+total_matrix_list <- readRDS(paste0("./Data/Processed/", arguments$options$grouping, "_total_matrix.rds"))
 
 # Train and Test split
 set.seed(1)

@@ -9,7 +9,7 @@ suppress_all(library(optparse))
 
 # Command-line Arguments
 option_list <- list(
-  make_option(c("-o", "--output_dir"), action =  "store", default = "../Output/",
+  make_option(c("-o", "--output_dir"), action =  "store", default = "./Output/",
               help = "The directory where the output of model runs are stored"),
   make_option(c("-m", "--model_type"), action = "store", default = "l1",
               help = "The model results to plot. One of 'l1', 'l2', 'rf', or 'xgb'")

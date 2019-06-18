@@ -30,29 +30,30 @@ On Windows:
 ```sh
 git clone https://github.com/dihi/icd_feature_engineering.git
 ```
-
-2. Navigate to the `Code` folder and run the following to initialize the directories
+From here on out, all scripts will be run from the top-level directory. 
 
 ```sh
-cd ./icd_feature_engineering/Code
+cd icd_feature_engineering # Go to top-level of repository
 ```
 
+2. Run the following to initialize the directories
+
 ```sh
-./00_create_directories.sh
+./Code/00_create_directories.sh
 ```
 
 3. Copy the `ADMISSIONS.csv`, `DIAGNOSES_ICD.csv` and `PATIENTS.csv` files into the `Data/Raw/` directory.
 
-4. Navigate to the top-level directory and build the dockerfile
+4. Build the dockerfile
 
 ```sh
-cd .. && sudo docker build -t icd_feature_engineering .
+sudo docker build -t icd_feature_engineering .
 ```
 
 5. Run the following command which will mount the folder into the container and run the experiment. Make sure you are currently located in the top level directory. Otherwise, repace `$(pwd)` with the full path to the top-level directory.
 
 ```sh
-sudo docker run -v $(pwd):/opt/ -w /opt/Code icd_feature_engineering ./run_entire_experiment.sh
+sudo docker run -v $(pwd):/opt/ -w /opt/ icd_feature_engineering ./run_entire_experiment.sh
 ```
 
 The experiments will take several hours to fully complete. There are hundreds of models being run (cross-validation for each combination of sample size split, model, representation, etc.)

@@ -10,7 +10,7 @@ suppress_all(library(optparse))
 suppress_all(library(MLmetrics))
 
 option_list <- list(
-  make_option(c("-o", "--output_dir"), action =  "store", default = "../Output/",
+  make_option(c("-o", "--output_dir"), action =  "store", default = "./Output/",
               help = "The directory where the output gets stored"),
   make_option(c("-n", "--num_boots"), action = "store", default = 5000,
               help = "Number of bootstrap samples when determining confidence intervals"),

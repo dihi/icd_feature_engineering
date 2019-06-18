@@ -2,11 +2,11 @@
 
 library(data.table)
 
-admissions <- fread("../Data/Raw/ADMISSIONS.csv")
-codes <- fread("../Data/Raw/DIAGNOSES_ICD.csv")
+admissions <- fread("./Data/Raw/ADMISSIONS.csv")
+codes <- fread("./Data/Raw/DIAGNOSES_ICD.csv")
 
 codes <- merge(codes, admissions, by = "HADM_ID")
-icd9_ahrq_cw <- fread("../Data/Crosswalk/icd9_ahrq.csv")
+icd9_ahrq_cw <- fread("./Data/Crosswalk/icd9_ahrq.csv")
 
 overlap <- length(intersect(unique(codes$ICD9_CODE), icd9_ahrq_cw$V1))
 total <- length(unique(codes$ICD9_CODE))

@@ -1,7 +1,7 @@
 # Generates Sparsity Table
 # For each of the datasets, look at the the proportion of zero elements
 
-data_dir <- '../Data/Final/'
+data_dir <- './Data/Final/'
 representation <- "binary"
 
 result_df <- data.frame()

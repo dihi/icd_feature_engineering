@@ -7,7 +7,7 @@
 # Therefore, we can use those names to define categories.
 
 
-icd9_ccs <- read.csv("../Data/Crosswalk/raw_ccs/$dxref 2015.csv", skip = 1, stringsAsFactors = FALSE, check.names = FALSE) # Skip a row
+icd9_ccs <- read.csv("./Data/Crosswalk/raw_ccs/$dxref 2015.csv", skip = 1, stringsAsFactors = FALSE, check.names = FALSE) # Skip a row
 
 # Fix names
 names(icd9_ccs) <- sapply(names(icd9_ccs), function(x) gsub("'", "", x))
@@ -19,7 +19,7 @@ icd9_ccs$`CCS CATEGORY` <- sapply(icd9_ccs$`CCS CATEGORY`, function(x) gsub("'",
 
 
 # Read in ICD-10 Crosswalk
-icd10_ccs <- read.csv("../Data/Crosswalk/raw_ccs/ccs_dx_icd10cm_2019_1.csv", stringsAsFactors = FALSE, check.names = FALSE)
+icd10_ccs <- read.csv("./Data/Crosswalk/raw_ccs/ccs_dx_icd10cm_2019_1.csv", stringsAsFactors = FALSE, check.names = FALSE)
 names(icd10_ccs) <- sapply(names(icd10_ccs), function(x) gsub("'", "", x))
 icd10_ccs$`ICD-10-CM CODE` <- sapply(icd10_ccs$`ICD-10-CM CODE`, function(x) gsub("'", "", x))
 icd10_ccs$`ICD-10-CM CODE` <- sapply(icd10_ccs$`ICD-10-CM CODE`, function(x) gsub("\\s", "", x))
@@ -36,5 +36,5 @@ icd9_ccs$`CCS CATEGORY DESCRIPTION` <- icd9_ccs$`CCS CATEGORY DESCRIPTION.y`
 icd9_ccs <- icd9_ccs[, c("ICD-9-CM CODE", "CCS CATEGORY", "CCS CATEGORY DESCRIPTION")]
 icd9_ccs <- icd9_ccs[-c(1), ]
 
-write.csv(icd9_ccs, "../Data/Crosswalk/icd9_to_singleCCSCategory.csv", row.names = FALSE)
-write.csv(icd10_ccs, "../Data/Crosswalk/icd10_to_singleCCSCategory.csv", row.names = FALSE)
+write.csv(icd9_ccs, "./Data/Crosswalk/icd9_to_singleCCSCategory.csv", row.names = FALSE)
+write.csv(icd10_ccs, "./Data/Crosswalk/icd10_to_singleCCSCategory.csv", row.names = FALSE)
