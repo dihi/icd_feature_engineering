@@ -40,7 +40,7 @@ for (f in list.files(arguments$options$output_dir)){
 
 
 auc_df <- data.frame(grouping = character(), auc = numeric(), sample_size = numeric(), lower_bound = numeric(), upper_bound = numeric(), representation = character())
-f1_df <- data.frame(grouping = character(), f1 = numeric(), sample_size = numeric(), lower_bound = numeric(), upper_bound = numeric(), representation = character())
+pr_df <- data.frame(grouping = character(), pr = numeric(), sample_size = numeric(), lower_bound = numeric(), upper_bound = numeric(), representation = character())
 time_df <- data.frame(grouping = character(), time = numeric(), sample_size = numeric(), representation = character())
 
 build_grouping_regex <- function(prefix){
@@ -57,9 +57,9 @@ for (i in names(results_list)){
     auc_res <- cbind(grouping=grouping, auc = auc$auc_death, bootstrap_df[bootstrap_df$measure == "AUC", c("sample_size", "lower_bound", "upper_bound")], representation = "binary")
     auc_df <- rbind(auc_df, auc_res)
     
-    f1 <- results_list[[i]][[2]]
-    f1_res <- cbind(grouping=grouping, f1 = f1$f1_death, bootstrap_df[bootstrap_df$measure == "F1", c("sample_size", "lower_bound", "upper_bound")], representation = "binary")
-    f1_df <- rbind(f1_df, f1_res)
+    pr <- results_list[[i]][[2]]
+    pr_res <- cbind(grouping=grouping, pr = pr$pr_death, bootstrap_df[bootstrap_df$measure == "pr", c("sample_size", "lower_bound", "upper_bound")], representation = "binary")
+    pr_df <- rbind(pr_df, pr_res)
     
     time <- results_list[[i]][[3]]$user
     time_res <- cbind(grouping = grouping, time = time, sample_size = bootstrap_df[bootstrap_df$measure == "AUC", "sample_size"], representation = "binary")
@@ -72,12 +72,12 @@ for (i in names(results_list)){
     auc_res <- cbind(grouping=grouping, auc = auc$auc_death, bootstrap_df[bootstrap_df$measure == "AUC", c("sample_size", "lower_bound", "upper_bound")], representation = "total")
     auc_df <- rbind(auc_df, auc_res)
     
-    f1 <- results_list[[i]][[2]]
-    f1_res <- cbind(grouping=grouping, f1 = f1$f1_death, bootstrap_df[bootstrap_df$measure == "F1", c("sample_size", "lower_bound", "upper_bound")], representation = "total")
-    f1_df <- rbind(f1_df, f1_res)
+    pr <- results_list[[i]][[2]]
+    pr_res <- cbind(grouping=grouping, pr = pr$pr_death, bootstrap_df[bootstrap_df$measure == "pr", c("sample_size", "lower_bound", "upper_bound")], representation = "total")
+    pr_df <- rbind(pr_df, pr_res)
     
     time <- results_list[[i]][[3]]$user
-    time_res <- cbind(grouping = grouping, time = time, sample_size = bootstrap_df[bootstrap_df$measure == "F1", "sample_size"], representation = "total")
+    time_res <- cbind(grouping = grouping, time = time, sample_size = bootstrap_df[bootstrap_df$measure == "pr", "sample_size"], representation = "total")
     time_df <- rbind(time_df, time_res)
     
   }
@@ -93,8 +93,8 @@ time_df$grouping <- factor(time_df$grouping, c("ahrq", "ccs", "trunc", "raw"))
 auc_ylim_lower <- min(auc_df$lower_bound) - sd(auc_df$auc)
 auc_ylim_upper <- max(auc_df$upper_bound) + sd(auc_df$auc)
 
-f1_ylim_lower <- min(f1_df$lower_bound) - sd(f1_df$f1)
-f1_ylim_upper <- max(f1_df$upper_bound) + sd(f1_df$f1)
+pr_ylim_lower <- min(pr_df$lower_bound) - sd(pr_df$pr)
+pr_ylim_upper <- max(pr_df$upper_bound) + sd(pr_df$pr)
 
 # make_name
 make_title <- function(type){
@@ -121,13 +121,13 @@ auc_plot <- ggplot(data = auc_df, aes(x = sample_size, y = auc, color = grouping
   labs(title = paste0(title, " AUC"), x = "Sample Size", y = "AUROC") +
   theme(panel.background = element_rect(fill = NA, color = "black"))
 
-f1_plot <- ggplot(data = f1_df, aes(x = sample_size, y = f1, color = grouping)) + 
+pr_plot <- ggplot(data = pr_df, aes(x = sample_size, y = pr, color = grouping)) + 
   geom_point(size = .85, position = position_dodge(1000)) + 
   facet_grid(representation ~ ., scales = "fixed") + 
-  ylim(f1_ylim_lower, f1_ylim_upper) + 
+  ylim(pr_ylim_lower, pr_ylim_upper) + 
   theme_minimal() + 
   geom_errorbar(aes(ymin = lower_bound, ymax = upper_bound), position = position_dodge(1000), width = 1200,  size = .75, alpha = 1) +
-  labs(title = paste0(title, " F1"), x = "Sample Size", y = "F1") +
+  labs(title = paste0(title, " pr"), x = "Sample Size", y = "pr") +
   theme(panel.background = element_rect(fill = NA, color = "black"))
 
 
@@ -140,6 +140,6 @@ time_plot <- ggplot(data = time_df, aes(x = sample_size, y = time, fill= groupin
 
 
 ggsave(paste0(new_output, arguments$options$model_type, "_auc.png"), auc_plot, scale = 1, height = 4.7, width = 7, units = "in")
-ggsave(paste0(new_output, arguments$options$model_type, "_f1.png"), f1_plot, scale = 1, height = 4.7, width = 7, units = "in")
+ggsave(paste0(new_output, arguments$options$model_type, "_pr.png"), pr_plot, scale = 1, height = 4.7, width = 7, units = "in")
 ggsave(paste0(new_output, arguments$options$model_type, "_time.png"), time_plot, scale = 1, height = 4.7, width = 7, units = "in")
 
