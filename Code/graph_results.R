@@ -127,7 +127,7 @@ pr_plot <- ggplot(data = pr_df, aes(x = sample_size, y = pr, color = grouping)) 
   ylim(pr_ylim_lower, pr_ylim_upper) + 
   theme_minimal() + 
   geom_errorbar(aes(ymin = lower_bound, ymax = upper_bound), position = position_dodge(1000), width = 1200,  size = .75, alpha = 1) +
-  labs(title = paste0(title, " pr"), x = "Sample Size", y = "pr") +
+  labs(title = paste0(title, " AUCPR"), x = "Sample Size", y = "AUCPR") +
   theme(panel.background = element_rect(fill = NA, color = "black"))
 
 
