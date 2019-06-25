@@ -53,7 +53,7 @@ sudo docker build -t icd_feature_engineering .
 5. Run the following command which will mount the folder into the container and run the experiment. Make sure you are currently located in the top level directory. Otherwise, repace `$(pwd)` with the full path to the top-level directory.
 
 ```sh
-sudo docker run -v $(pwd):/opt/ -w /opt/ icd_feature_engineering ./run_entire_experiment.sh
+sudo docker run -v $(pwd):/opt/ -w /opt/ icd_feature_engineering ./Code/run_entire_experiment.sh
 ```
 
 The experiments will take several hours to fully complete. There are hundreds of models being run (cross-validation for each combination of sample size split, model, representation, etc.)
