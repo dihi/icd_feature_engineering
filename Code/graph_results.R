@@ -61,7 +61,7 @@ for (i in names(results_list)){
     pr_res <- cbind(grouping=grouping, pr = pr$pr_death, bootstrap_df[bootstrap_df$measure == "pr", c("sample_size", "lower_bound", "upper_bound")], representation = "binary")
     pr_df <- rbind(pr_df, pr_res)
     
-    time <- results_list[[i]][[3]]$user
+    time <- results_list[[i]][[3]]$elapsed
     time_res <- cbind(grouping = grouping, time = time, sample_size = bootstrap_df[bootstrap_df$measure == "AUC", "sample_size"], representation = "binary")
     time_df <- rbind(time_df, time_res)
   }
@@ -76,7 +76,7 @@ for (i in names(results_list)){
     pr_res <- cbind(grouping=grouping, pr = pr$pr_death, bootstrap_df[bootstrap_df$measure == "pr", c("sample_size", "lower_bound", "upper_bound")], representation = "total")
     pr_df <- rbind(pr_df, pr_res)
     
-    time <- results_list[[i]][[3]]$user
+    time <- results_list[[i]][[3]]$elapsed
     time_res <- cbind(grouping = grouping, time = time, sample_size = bootstrap_df[bootstrap_df$measure == "pr", "sample_size"], representation = "total")
     time_df <- rbind(time_df, time_res)
     
