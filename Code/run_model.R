@@ -2,7 +2,8 @@
 # Run Models
 # A generic script to run all of the models
 # Command-line arguments will be used to specify which models to run
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 suppress_all <- function(x){
   suppressWarnings(suppressMessages(x))
 }

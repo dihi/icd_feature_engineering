@@ -1,13 +1,14 @@
 #!/usr/bin/env Rscript
 # Bootstrap AUC and F1 measures
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 suppress_all <- function(x) {
   suppressWarnings(suppressMessages(x))
 }
 
 suppress_all(library(glmnet))
 suppress_all(library(optparse))
-suppress_all(library(MLmetrics))
+suppress_all(MLmetrics))
 
 option_list <- list(
   make_option(c("-o", "--output_dir"), action =  "store", default = "./Output/",

@@ -1,5 +1,6 @@
 library(icd)
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 
 codes <- c()
 names <- c()

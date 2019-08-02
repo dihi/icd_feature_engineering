@@ -6,7 +6,8 @@
 # Although neither are perfect, the ICD-10 version is a bit better formatted
 # Therefore, we can use those names to define categories.
 
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 icd9_ccs <- read.csv("./Data/Crosswalk/raw_ccs/$dxref 2015.csv", skip = 1, stringsAsFactors = FALSE, check.names = FALSE) # Skip a row
 
 # Fix names

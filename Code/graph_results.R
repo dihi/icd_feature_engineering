@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 suppress_all <- function(x){
   suppressWarnings(suppressMessages(x))
 }
@@ -110,6 +111,7 @@ make_title <- function(type){
 }
 
 title <- make_title(arguments$options$model_type)
+print(auc_df)
 
 # Plot 
 auc_plot <- ggplot(data = auc_df, aes(x = sample_size, y = auc, color = grouping)) + 

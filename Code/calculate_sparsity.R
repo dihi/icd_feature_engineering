@@ -1,6 +1,7 @@
 # Generates Sparsity Table
 # For each of the datasets, look at the the proportion of zero elements
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 data_dir <- './Data/Final/'
 representation <- "binary"
 

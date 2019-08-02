@@ -8,7 +8,8 @@
 # ./mimic_dx_tables.R -g ccs 
 # To see usage:
 # ./mimic_dx_tables.R -h
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 Sys.setenv(TZ = "America/New_York")
 
 suppress_all <- function(x){

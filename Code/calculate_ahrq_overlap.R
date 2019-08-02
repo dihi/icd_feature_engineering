@@ -1,5 +1,6 @@
 # Calculate non-AHRQ codes
-
+library(checkpoint)
+checkpoint("2019-05-01", checkpointLocation = '/root/', scanForPackages = FALSE)
 library(data.table)
 
 admissions <- fread("./Data/Raw/ADMISSIONS.csv")
