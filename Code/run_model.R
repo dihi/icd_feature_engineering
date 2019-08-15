@@ -255,7 +255,7 @@ saveRDS(total_results, paste0(arguments$options$output_dir, arguments$options$mo
 remove(total_matrix_list)
 
 print(paste0("Running ", arguments$options$model_type, " model with Binary codes grouped by ", arguments$options$grouping))
-binary_matrix_list <- readRDS(paste0("../Data/Processed/", arguments$options$grouping, "_binary_matrix.rds"))
+binary_matrix_list <- readRDS(paste0("./Data/Processed/", arguments$options$grouping, "_binary_matrix.rds"))
 
 if (exists("alpha")){
   binary_results <- run_model(binary_matrix_list, train_indices, test_indices, alpha)
