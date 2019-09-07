@@ -8,7 +8,7 @@ suppress_all <- function(x) {
 
 suppress_all(library(glmnet))
 suppress_all(library(optparse))
-suppress_all(MLmetrics))
+suppress_all(library(MLmetrics))
 
 option_list <- list(
   make_option(c("-o", "--output_dir"), action =  "store", default = "./Output/",
