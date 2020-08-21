@@ -1,0 +1,15 @@
+Data/*
+*.Rmd
+*.Rproj
+!Data/Crosswalk
+Code/.Rhistory*
+*.model
+*.Rdata*
+*.DS_Store*
+Output/*Data/*
+Output/*
+Code/raw*
+.Rproj.user
+packrat/lib*/
+packrat/*
+!packrat/packrat.lock
