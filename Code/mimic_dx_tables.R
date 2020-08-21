@@ -54,7 +54,7 @@ patients <- patients[, c("SUBJECT_ID", "GENDER", "DOB", "DOD")]
 all_encounters <- merge(admissions, patients, by = "SUBJECT_ID", all.x = TRUE)
 all_encounters[, c("ADMITTIME", "DOB", "DOD") := lapply(.SD, ymd_hms), .SDcols = c("ADMITTIME", "DOB", "DOD")]
 all_encounters[, AGE := year(ADMITTIME) - year(DOB)]
-all_encounters[, death_in_year := ifelse((year(DOD) - year(ADMITTIME)) > 365, 0, 1)]
+all_encounters[, death_in_year := ifelse(as.numeric(difftime(all_encounters$DOD, all_encounters$ADMITTIME, units="days")) <= 365, 1, 0)]
 all_encounters$death_in_year[is.na(all_encounters$death_in_year)] <- 0
 all_encounters <- all_encounters[, c("HADM_ID", "GENDER", "AGE", "death_in_year")]
 all_encounters$GENDER <- ifelse(all_encounters$GENDER == "M", 1, 0)
@@ -111,7 +111,7 @@ if (arguments$options$grouping == "ahrq") {
   codes <- codes[ICD9_CODE != "",]
   ahrq_map <- merge(codes, icd9_ahrq_cw, by.x = "ICD9_CODE", by.y = "codes", all.x = TRUE, allow.cartesian = TRUE)
   ahrq_map <- as.data.table(ahrq_map[, c("HADM_ID", "names")]) 
-  ahrq_map <- ahrq_map[complete.cases(ahrq_map),]
+  #ahrq_map <- ahrq_map[complete.cases(ahrq_map),]
   
   # Create matrices and save
   ahrq_total_matrix <- create_matrix(ahrq_map, 'names', type = 'total')
